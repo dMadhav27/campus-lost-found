@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card fade-in">
+            <div class="auth-header">
+                <i class="fas fa-sign-in-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.9;"></i>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your student account</p>
+            </div>
+
+            <form class="auth-form" id="loginForm">
+                <div class="card" style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.2); padding: 1rem; margin-bottom: 1.5rem; border-radius: 10px;">
+                    <h4 style="color: var(--primary-color); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Demo Credentials
+                    </h4>
+                    <p style="font-size: 0.85rem; color: var(--gray-medium); margin: 0.25rem 0;">
+                        <strong>Student:</strong> student@college.edu / student123
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--gray-medium); margin: 0.25rem 0;">
+                        <strong>Admin:</strong> admin@college.edu / admin123
+                    </p>
+                    <p style="font-size: 0.75rem; color: var(--gray-medium); margin-top: 0.5rem; font-style: italic;">
+                        Click here to auto-fill demo credentials
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <div class="input-icon">
+                        <input type="email" id="email" name="email" class="form-input" placeholder="your.email@college.edu" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-icon">
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; color: var(--gray-medium);">
+                        <input type="checkbox" name="rememberMe" style="margin: 0;">
+                        Remember me
+                    </label>
+                    <a href="#" style="color: var(--primary-color); font-weight: 500;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
+                    <div class="loading-spinner"></div>
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span class="btn-text">Sign In</span>
+                </button>
+
+                <div class="auth-footer">
+                    Don't have an account? 
+                    <a href="/signup.html" class="auth-link">Create one here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <a href="/" style="position: absolute; top: 1rem; left: 1rem; color: rgba(255,255,255,0.8); font-size: 1.5rem; transition: all 0.3s ease;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Auto-fill demo credentials when demo area is clicked
+        document.querySelector('.card').addEventListener('click', function() {
+            document.getElementById('email').value = 'student@college.edu';
+            document.getElementById('password').value = 'student123';
+        });
+
+        // Add URL parameter handling for messages
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'true') {
+            setTimeout(() => {
+                document.querySelector('.auth-form').insertAdjacentHTML('afterbegin', 
+                    '<div class="message message-success show">Registration successful! Please sign in with your credentials.</div>'
+                );
+            }, 100);
+        }
+    </script>
+</body>
+</html>

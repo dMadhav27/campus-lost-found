@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card fade-in" style="max-width: 500px;">
+            <div class="auth-header">
+                <i class="fas fa-user-plus" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.9;"></i>
+                <h1 class="auth-title">Join Our Community</h1>
+                <p class="auth-subtitle">Create your verified student account</p>
+            </div>
+
+            <form class="auth-form" id="signupForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">
+                            First Name <span class="required">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <input type="text" id="firstName" name="firstName" class="form-input" placeholder="First name" required>
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">
+                            Last Name <span class="required">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Last name" required>
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentId" class="form-label">
+                        Student ID <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <input type="text" id="studentId" name="studentId" class="form-input" placeholder="Enter your student ID" required>
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        College Email <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <input type="email" id="email" name="email" class="form-input" placeholder="your.name@college.edu" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <div class="input-icon">
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+1 (555) 123-4567">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="department" class="form-label">Department</label>
+                        <select id="department" name="department" class="form-select">
+                            <option value="">Select Department</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Business">Business</option>
+                            <option value="Arts & Sciences">Arts & Sciences</option>
+                            <option value="Medicine">Medicine</option>
+                            <option value="Law">Law</option>
+                            <option value="Education">Education</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="yearOfStudy" class="form-label">Year of Study</label>
+                        <select id="yearOfStudy" name="yearOfStudy" class="form-select">
+                            <option value="">Select Year</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                            <option value="5">Graduate</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Password <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Create a strong password" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">
+                        Confirm Password <span class="required">*</span>
+                    </label>
+                    <div class="input-icon">
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                </div>
+
+                <div style="background: var(--gray-light); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--gray-medium);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--primary-color);">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Password Requirements:</strong>
+                    </div>
+                    <ul style="margin: 0; padding-left: 1rem;">
+                        <li>At least 6 characters long</li>
+                        <li>Contains uppercase letter</li>
+                        <li>Contains lowercase letter</li>
+                        <li>Contains at least one number</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
+                    <div class="loading-spinner"></div>
+                    <i class="fas fa-user-plus"></i>
+                    <span class="btn-text">Create Account</span>
+                </button>
+
+                <div class="auth-footer">
+                    Already have an account? 
+                    <a href="/login.html" class="auth-link">Sign in here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <a href="/" style="position: absolute; top: 1rem; left: 1rem; color: rgba(255,255,255,0.8); font-size: 1.5rem; transition: all 0.3s ease;">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

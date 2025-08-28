@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-search-location"></i>
+                    Campus Lost & Found
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html" class="nav-link" style="color: var(--primary-color); font-weight: 600;">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="#" class="nav-link">
+                        <i class="fas fa-search"></i> Browse
+                    </a></li>
+                    <li><a href="#" class="nav-link">
+                        <i class="fas fa-plus"></i> Report Item
+                    </a></li>
+                    <li><a href="#" class="nav-link">
+                        <i class="fas fa-list"></i> My Items
+                    </a></li>
+                    <li>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="user-name" style="font-weight: 500;">Loading...</span>
+                            <div class="user-avatar">JD</div>
+                            <button class="btn btn-outline" id="logoutBtn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="container">
+            <div class="dashboard-header">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h1 class="dashboard-title">
+                            Welcome back, <span class="welcome-name">Student</span>! 👋
+                        </h1>
+                        <p class="dashboard-subtitle">Here's what's happening with your lost and found items</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Report Item
+                        </button>
+                        <button class="btn btn-outline">
+                            <i class="fas fa-search"></i>
+                            Browse Items
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="color: var(--gray-medium); font-size: 0.9rem; font-weight: 500;">Items Lost</span>
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--error-color), #fca5a5); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-exclamation-triangle" style="color: white; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                </div>
+
+                <div class="card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="color: var(--gray-medium); font-size: 0.9rem; font-weight: 500;">Items Found</span>
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--success-color), #6ee7b7); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-hand-holding" style="color: white; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                </div>
+
+                <div class="card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="color: var(--gray-medium); font-size: 0.9rem; font-weight: 500;">Pending Claims</span>
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--warning-color), #fcd34d); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-clock" style="color: white; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                </div>
+
+                <div class="card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span style="color: var(--gray-medium); font-size: 0.9rem; font-weight: 500;">Items Returned</span>
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check-circle" style="color: white; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--dark-color);">Quick Actions</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--error-color), #fca5a5); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Report Lost Item</h3>
+                        <p style="font-size: 0.85rem; color: var(--gray-medium);">Lost something? Let the community help you find it</p>
+                    </a>
+
+                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--success-color), #6ee7b7); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
+                            <i class="fas fa-hand-holding"></i>
+                        </div>
+                        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Report Found Item</h3>
+                        <p style="font-size: 0.85rem; color: var(--gray-medium);">Found something? Help return it to its owner</p>
+                    </a>
+
+                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Browse Items</h3>
+                        <p style="font-size: 0.85rem; color: var(--gray-medium);">Search through lost and found items</p>
+                    </a>
+
+                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning-color), #fcd34d); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
+                            <i class="fas fa-list-ul"></i>
+                        </div>
+                        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">My Items</h3>
+                        <p style="font-size: 0.85rem; color: var(--gray-medium);">View and manage your items and claims</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--dark-color);">Recent Activity</h2>
+                <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-medium);">
+                    <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p style="margin-bottom: 0.5rem;">No recent activity</p>
+                    <p style="font-size: 0.85rem;">Start by reporting a lost or found item to see your activity here</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Add hover effects to action cards
+        document.querySelectorAll('a[href="#"]').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.background = 'white';
+                this.style.borderColor = 'var(--primary-color)';
+                this.style.transform = 'translateY(-3px)';
+                this.style.boxShadow = 'var(--shadow)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.background = 'var(--gray-light)';
+                this.style.borderColor = 'transparent';
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Add animation delays for stats cards
+        document.querySelectorAll('.slide-up').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>

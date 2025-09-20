@@ -101,176 +101,6 @@
             color: var(--success-color);
         }
         
-        /* Security Questions Styling */
-        .security-section {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-            border: 2px solid rgba(102, 126, 234, 0.2);
-            border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-        
-        .security-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .security-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-        
-        .security-info h4 {
-            margin: 0 0 0.5rem 0;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .security-info p {
-            margin: 0;
-            color: var(--gray-medium);
-            font-size: 0.9rem;
-        }
-        
-        .question-item {
-            background: white;
-            border: 1px solid var(--gray-border);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-        
-        .question-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .question-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .question-number {
-            background: var(--primary-color);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .remove-question {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--error-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .remove-question:hover {
-            transform: scale(1.1);
-        }
-        
-        .question-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        .field-label {
-            font-weight: 500;
-            color: var(--dark-color);
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        
-        .question-input, .answer-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--gray-border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        
-        .question-input:focus, .answer-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .add-question {
-            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 1rem auto 0;
-        }
-        
-        .add-question:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        
-        .security-tips {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-        }
-        
-        .security-tips h5 {
-            color: var(--warning-color);
-            margin: 0 0 0.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .security-tips ul {
-            margin: 0;
-            padding-left: 1rem;
-            color: var(--gray-medium);
-            font-size: 0.85rem;
-        }
-        
-        .security-tips li {
-            margin-bottom: 0.25rem;
-        }
-        
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
@@ -279,18 +109,51 @@
             border-top: 1px solid var(--gray-border);
         }
         
+        .verification-questions {
+            background: var(--gray-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .question-input {
+            margin-bottom: 1rem;
+        }
+        
+        .add-question {
+            background: none;
+            border: 2px dashed var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .add-question:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
         .image-upload-area {
-            border: 2px dashed var(--gray-border);
+            border: 2px dashed var(--primary-color);
             border-radius: 10px;
             padding: 2rem;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
+            background: rgba(102, 126, 234, 0.05);
         }
         
         .image-upload-area:hover {
-            border-color: var(--primary-color);
-            background: rgba(102, 126, 234, 0.05);
+            border-color: var(--primary-dark);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .image-upload-area.required {
+            border-color: var(--error-color);
+            background: rgba(239, 68, 68, 0.05);
         }
         
         .image-preview {
@@ -330,14 +193,38 @@
             justify-content: center;
         }
         
-        @media (max-width: 768px) {
-            .question-fields {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        .location-input-group {
+            position: relative;
+        }
+        
+        .location-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+        
+        .location-suggestion {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--gray-border);
+            transition: background 0.2s ease;
+        }
+        
+        .location-suggestion:hover {
+            background: var(--gray-light);
+        }
+        
+        .location-suggestion:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
@@ -382,7 +269,7 @@
             <div class="card">
                 <div class="form-header">
                     <h1 class="form-title">Report an Item</h1>
-                    <p class="form-subtitle">Help reunite lost items with their owners through our secure verification system</p>
+                    <p class="form-subtitle">Help reunite lost items with their owners</p>
                 </div>
 
                 <!-- Step Indicator -->
@@ -397,7 +284,7 @@
                     </div>
                     <div class="step" data-step="3">
                         <div class="step-number">3</div>
-                        <span>Security</span>
+                        <span>Verification</span>
                     </div>
                     <div class="step" data-step="4">
                         <div class="step-number">4</div>
@@ -452,7 +339,7 @@
                                 Detailed Description <span class="required">*</span>
                             </label>
                             <textarea id="description" name="description" class="form-textarea" 
-                                      rows="4" placeholder="Provide a detailed description including color, brand, distinctive features, any damage, etc." required></textarea>
+                                      rows="4" placeholder="Provide a detailed description including color, brand, distinctive features, etc." required></textarea>
                         </div>
 
                         <div class="form-row">
@@ -464,10 +351,15 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="location" class="form-label">Location</label>
-                                <select id="location" name="location" class="form-select">
-                                    <option value="">Loading locations...</option>
-                                </select>
+                                <label for="location" class="form-label">Location <span class="required">*</span></label>
+                                <div class="location-input-group">
+                                    <input type="text" id="location" name="location" class="form-input" 
+                                           placeholder="Enter location (e.g., Main Library, Computer Lab 1)" required>
+                                    <div class="location-suggestions" id="locationSuggestions"></div>
+                                </div>
+                                <small style="color: var(--gray-medium); font-size: 0.85rem;">
+                                    Start typing to see suggestions, or enter your own location
+                                </small>
                             </div>
                         </div>
 
@@ -493,58 +385,60 @@
                                    min="0" max="500" step="0.01" placeholder="0.00">
                         </div>
 
-                        <!-- Image Upload -->
+                        <!-- Image Upload - Now Required -->
                         <div class="form-group">
-                            <label class="form-label">Images (Up to 5)</label>
+                            <label class="form-label">
+                                Images <span class="required">*</span> 
+                                <span style="font-weight: normal; color: var(--gray-medium);">(At least 1 required, up to 5)</span>
+                            </label>
+                            <p style="font-size: 0.9rem; color: var(--gray-medium); margin-bottom: 1rem;">
+                                📋 <strong>Please include:</strong> Photos of the item, purchase receipt/bill/invoice if available, or any proof of ownership
+                            </p>
                             <div class="image-upload-area" id="imageUploadArea">
-                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray-medium); margin-bottom: 1rem;"></i>
+                                <i class="fas fa-camera" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
                                 <p><strong>Click to upload images</strong> or drag and drop</p>
                                 <p style="font-size: 0.85rem; color: var(--gray-medium);">
-                                    JPG, PNG, GIF up to 5MB each
+                                    JPG, PNG, GIF up to 5MB each<br>
+                                    <i class="fas fa-receipt" style="color: var(--warning-color);"></i> 
+                                    Include receipt/bill/invoice for faster verification
                                 </p>
                             </div>
                             <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;">
                             <div class="image-preview" id="imagePreview"></div>
+                            <div id="imageError" style="color: var(--error-color); font-size: 0.9rem; margin-top: 0.5rem; display: none;">
+                                <i class="fas fa-exclamation-circle"></i> At least one image is required
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Step 3: Security Questions -->
+                    <!-- Step 3: Verification Questions -->
                     <div class="form-step" id="step3">
-                        <h3 style="margin-bottom: 1.5rem;">Security Verification</h3>
+                        <h3 style="margin-bottom: 1rem;">Verification Questions</h3>
+                        <p style="color: var(--gray-medium); margin-bottom: 1.5rem;">
+                            Create questions that only the true owner would know. This helps prevent false claims.
+                        </p>
                         
-                        <div class="security-section">
-                            <div class="security-header">
-                                <div class="security-icon">
-                                    <i class="fas fa-shield-alt"></i>
+                        <div class="verification-questions">
+                            <div id="verificationQuestions">
+                                <div class="question-input">
+                                    <input type="text" class="form-input verification-question" 
+                                           placeholder="e.g., What color is the phone case?" 
+                                           data-question="1">
                                 </div>
-                                <div class="security-info">
-                                    <h4>Anti-Fraud Protection</h4>
-                                    <p>Create security questions that only the true owner would know. This prevents false claims and ensures items reach their rightful owners.</p>
+                                <div class="question-input">
+                                    <input type="text" class="form-input verification-question" 
+                                           placeholder="e.g., What is the wallpaper on the lock screen?" 
+                                           data-question="2">
+                                </div>
+                                <div class="question-input">
+                                    <input type="text" class="form-input verification-question" 
+                                           placeholder="e.g., Are there any distinctive scratches or marks?" 
+                                           data-question="3">
                                 </div>
                             </div>
-                            
-                            <div id="questionsContainer">
-                                <!-- Questions will be populated by JavaScript -->
-                            </div>
-                            
-                            <button type="button" class="add-question" onclick="addSecurityQuestion()">
-                                <i class="fas fa-plus"></i>
-                                Add Security Question
+                            <button type="button" class="add-question" onclick="addVerificationQuestion()">
+                                <i class="fas fa-plus"></i> Add Another Question
                             </button>
-                            
-                            <div class="security-tips">
-                                <h5>
-                                    <i class="fas fa-lightbulb"></i>
-                                    Security Tips
-                                </h5>
-                                <ul>
-                                    <li>Ask about specific details only you would know (contents, hidden damage, personal modifications)</li>
-                                    <li>Avoid obvious questions like "What color is it?" that anyone can guess from photos</li>
-                                    <li>Include details about when/where it was purchased or received</li>
-                                    <li>Ask about specific text, stickers, or markings not visible in photos</li>
-                                    <li>Minimum 2 questions required, maximum 5 questions allowed</li>
-                                </ul>
-                            </div>
                         </div>
 
                         <!-- Contact Information -->
@@ -601,8 +495,8 @@
                             <p style="color: var(--gray-medium); font-size: 0.9rem;">
                                 • Your report will be reviewed by administrators before being published<br>
                                 • False or misleading reports may result in account suspension<br>
-                                • Security questions help ensure items reach their rightful owners<br>
-                                • You will be notified when someone claims your item
+                                • Verification questions help ensure items reach their rightful owners<br>
+                                • Include receipt/invoice images for faster verification process
                             </p>
                         </div>
                     </div>
@@ -634,26 +528,16 @@
         let currentStep = 1;
         let selectedImages = [];
         let selectedType = '';
-        let securityQuestions = [];
+        let locationSuggestions = [];
 
         // Initialize form
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Initializing enhanced report item form...');
+            console.log('Initializing report item form...');
             loadCategories();
             loadLocations();
             setupEventListeners();
             populateUserEmail();
-            initializeSecurityQuestions();
         });
-
-        // Initialize with first security question
-        function initializeSecurityQuestions() {
-            securityQuestions = [
-                { question: '', answer: '' },
-                { question: '', answer: '' }
-            ];
-            renderSecurityQuestions();
-        }
 
         // Setup event listeners
         function setupEventListeners() {
@@ -682,64 +566,49 @@
 
             // Image upload
             setupImageUpload();
+            
+            // Location autocomplete
+            setupLocationAutocomplete();
         }
 
-        // Security Questions Management
-        function renderSecurityQuestions() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
-            
-            securityQuestions.forEach((q, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question-item';
-                questionDiv.innerHTML = `
-                    <div class="question-header">
-                        <div class="question-number">${index + 1}</div>
-                        ${securityQuestions.length > 2 ? `
-                            <button type="button" class="remove-question" onclick="removeSecurityQuestion(${index})">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        ` : ''}
-                    </div>
-                    <div class="question-fields">
-                        <div>
-                            <label class="field-label">Security Question</label>
-                            <input type="text" class="question-input" placeholder="e.g., What's written inside the cover?" 
-                                   value="${q.question}" onchange="updateSecurityQuestion(${index}, 'question', this.value)">
-                        </div>
-                        <div>
-                            <label class="field-label">Correct Answer</label>
-                            <input type="text" class="answer-input" placeholder="Your answer" 
-                                   value="${q.answer}" onchange="updateSecurityQuestion(${index}, 'answer', this.value)">
-                        </div>
-                    </div>
-                `;
-                container.appendChild(questionDiv);
+        // Setup location autocomplete
+        function setupLocationAutocomplete() {
+            const locationInput = document.getElementById('location');
+            const suggestionsDiv = document.getElementById('locationSuggestions');
+
+            locationInput.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                
+                if (value.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+
+                const filtered = locationSuggestions.filter(loc => 
+                    loc.name.toLowerCase().includes(value)
+                );
+
+                if (filtered.length > 0) {
+                    suggestionsDiv.innerHTML = filtered.map(loc => 
+                        `<div class="location-suggestion" onclick="selectLocation('${loc.name}')">${loc.name}</div>`
+                    ).join('');
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.location-input-group')) {
+                    suggestionsDiv.style.display = 'none';
+                }
             });
         }
 
-        function addSecurityQuestion() {
-            if (securityQuestions.length >= 5) {
-                alert('Maximum 5 security questions allowed');
-                return;
-            }
-            
-            securityQuestions.push({ question: '', answer: '' });
-            renderSecurityQuestions();
-        }
-
-        function removeSecurityQuestion(index) {
-            if (securityQuestions.length <= 2) {
-                alert('Minimum 2 security questions required');
-                return;
-            }
-            
-            securityQuestions.splice(index, 1);
-            renderSecurityQuestions();
-        }
-
-        function updateSecurityQuestion(index, field, value) {
-            securityQuestions[index][field] = value;
+        function selectLocation(locationName) {
+            document.getElementById('location').value = locationName;
+            document.getElementById('locationSuggestions').style.display = 'none';
         }
 
         // Step navigation
@@ -812,7 +681,12 @@
                 case 2:
                     const title = document.getElementById('title').value.trim();
                     const description = document.getElementById('description').value.trim();
+                    const location = document.getElementById('location').value.trim();
                     const dateLostFound = document.getElementById('dateLostFound').value;
+                    
+                    // Hide previous error
+                    document.getElementById('imageError').style.display = 'none';
+                    document.getElementById('imageUploadArea').classList.remove('required');
                     
                     if (!title) {
                         alert('Please enter an item title');
@@ -822,35 +696,25 @@
                         alert('Please provide a detailed description');
                         return false;
                     }
+                    if (!location) {
+                        alert('Please enter a location');
+                        return false;
+                    }
                     if (!dateLostFound) {
                         alert('Please select the date');
                         return false;
                     }
-                    break;
-                case 3:
-                    // Validate security questions
-                    const validQuestions = securityQuestions.filter(q => 
-                        q.question.trim().length >= 5 && q.answer.trim().length >= 1
-                    );
                     
-                    if (validQuestions.length < 2) {
-                        alert('Please provide at least 2 complete security questions with answers (minimum 5 characters for questions)');
+                    // Check if at least one image is uploaded
+                    if (selectedImages.length === 0) {
+                        document.getElementById('imageError').style.display = 'block';
+                        document.getElementById('imageUploadArea').classList.add('required');
+                        alert('Please upload at least one image of the item');
                         return false;
                     }
-                    
-                    // Check for generic questions
-                    const genericPatterns = ['what color', 'what brand', 'what size'];
-                    const hasGeneric = validQuestions.some(q => 
-                        genericPatterns.some(pattern => 
-                            q.question.toLowerCase().includes(pattern) && q.answer.length < 5
-                        )
-                    );
-                    
-                    if (hasGeneric) {
-                        if (!confirm('Some questions appear generic and may be easy to guess. Are you sure you want to continue?')) {
-                            return false;
-                        }
-                    }
+                    break;
+                case 3:
+                    // Optional validation for verification questions
                     break;
             }
             return true;
@@ -882,15 +746,8 @@
                 const response = await fetch('/api/items/meta/locations');
                 const result = await response.json();
                 if (result.success) {
-                    const select = document.getElementById('location');
-                    select.innerHTML = '<option value="">Select Location</option>';
-                    result.locations.forEach(loc => {
-                        const option = document.createElement('option');
-                        option.value = loc.name;
-                        option.textContent = loc.name;
-                        select.appendChild(option);
-                    });
-                    console.log('Locations loaded:', result.locations.length);
+                    locationSuggestions = result.locations;
+                    console.log('Location suggestions loaded:', result.locations.length);
                 }
             } catch (error) {
                 console.error('Error loading locations:', error);
@@ -909,7 +766,6 @@
         function setupImageUpload() {
             const input = document.getElementById('images');
             const uploadArea = document.getElementById('imageUploadArea');
-            const preview = document.getElementById('imagePreview');
             
             uploadArea.addEventListener('click', () => input.click());
             
@@ -934,6 +790,12 @@
                             url: e.target.result
                         });
                         updateImagePreview();
+                        
+                        // Hide error message when image is added
+                        if (selectedImages.length > 0) {
+                            document.getElementById('imageError').style.display = 'none';
+                            document.getElementById('imageUploadArea').classList.remove('required');
+                        }
                     };
                     reader.readAsDataURL(file);
                 });
@@ -960,6 +822,31 @@
         function removeImage(index) {
             selectedImages.splice(index, 1);
             updateImagePreview();
+            
+            // Show error if no images left
+            if (selectedImages.length === 0) {
+                document.getElementById('imageUploadArea').classList.add('required');
+            }
+        }
+
+        // Verification questions
+        function addVerificationQuestion() {
+            const container = document.getElementById('verificationQuestions');
+            const questionCount = container.querySelectorAll('.question-input').length;
+            
+            if (questionCount >= 10) {
+                alert('Maximum 10 verification questions allowed');
+                return;
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'question-input';
+            div.innerHTML = `
+                <input type="text" class="form-input verification-question" 
+                       placeholder="Enter verification question..." 
+                       data-question="${questionCount + 1}">
+            `;
+            container.appendChild(div);
         }
 
         // Generate review summary
@@ -973,33 +860,24 @@
             const timeLostFound = document.getElementById('timeLostFound').value;
             const rewardAmount = document.getElementById('rewardAmount').value;
             
-            const validQuestions = securityQuestions.filter(q => 
-                q.question.trim().length >= 5 && q.answer.trim().length >= 1
-            );
+            const questions = [];
+            document.querySelectorAll('.verification-question').forEach(q => {
+                if (q.value.trim()) questions.push(q.value.trim());
+            });
             
             const summary = document.getElementById('reviewSummary');
             summary.innerHTML = `
-                <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary-color);">Report Summary</h4>
-                    <div style="display: grid; gap: 0.5rem;">
-                        <p><strong>Type:</strong> ${type.charAt(0).toUpperCase() + type.slice(1)} Item</p>
-                        <p><strong>Title:</strong> ${title}</p>
-                        <p><strong>Description:</strong> ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</p>
-                        <p><strong>Category:</strong> ${category || 'Not specified'}</p>
-                        <p><strong>Location:</strong> ${location || 'Not specified'}</p>
-                        <p><strong>Date:</strong> ${dateLostFound}${timeLostFound ? ' at ' + timeLostFound : ''}</p>
-                        ${rewardAmount ? `<p><strong>Reward:</strong> $${rewardAmount}</p>` : ''}
-                        <p><strong>Images:</strong> ${selectedImages.length} uploaded</p>
-                    </div>
-                </div>
-                <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 10px;">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary-color);">Security Questions (${validQuestions.length})</h4>
-                    ${validQuestions.map((q, index) => `
-                        <div style="margin-bottom: 0.5rem;">
-                            <strong>Q${index + 1}:</strong> ${q.question}<br>
-                            <span style="color: var(--gray-medium); font-size: 0.9rem;">Answer: ${q.answer}</span>
-                        </div>
-                    `).join('')}
+                <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px;">
+                    <h4 style="margin-bottom: 1rem;">Report Summary</h4>
+                    <p><strong>Type:</strong> ${type.charAt(0).toUpperCase() + type.slice(1)} Item</p>
+                    <p><strong>Title:</strong> ${title}</p>
+                    <p><strong>Description:</strong> ${description}</p>
+                    <p><strong>Category:</strong> ${category || 'Not specified'}</p>
+                    <p><strong>Location:</strong> ${location}</p>
+                    <p><strong>Date:</strong> ${dateLostFound}${timeLostFound ? ' at ' + timeLostFound : ''}</p>
+                    ${rewardAmount ? `<p><strong>Reward:</strong> $${rewardAmount}</p>` : ''}
+                    <p><strong>Images:</strong> ${selectedImages.length} selected</p>
+                    <p><strong>Verification Questions:</strong> ${questions.length} added</p>
                 </div>
             `;
         }
@@ -1038,11 +916,12 @@
                 };
                 formData.append('contactInfo', JSON.stringify(contactInfo));
                 
-                // Add security questions - only valid ones
-                const validQuestions = securityQuestions.filter(q => 
-                    q.question.trim().length >= 5 && q.answer.trim().length >= 1
-                );
-                formData.append('verificationQuestions', JSON.stringify(validQuestions));
+                // Add verification questions
+                const questions = [];
+                document.querySelectorAll('.verification-question').forEach(q => {
+                    if (q.value.trim()) questions.push(q.value.trim());
+                });
+                formData.append('verificationQuestions', JSON.stringify(questions));
                 
                 // Add images
                 selectedImages.forEach(img => {
@@ -1057,7 +936,7 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert(result.message);
+                    alert(result.message + '\n\nNote: Your item will appear in "My Items" after admin verification.');
                     window.location.href = '/my-items.html';
                 } else {
                     alert(result.error || 'Failed to submit report');

@@ -36,6 +36,48 @@ const upload = multer({
     }
 });
 
+// Helper function to safely parse JSON
+function safeJsonParse(jsonString, defaultValue = null) {
+    if (!jsonString) return defaultValue;
+    
+    try {
+        // If it's already an object, return it
+        if (typeof jsonString === 'object') {
+            return jsonString;
+        }
+        
+        // If it's a string that doesn't look like JSON, return default
+        if (typeof jsonString === 'string') {
+            const trimmed = jsonString.trim();
+            if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) {
+                console.log('Invalid JSON format:', trimmed);
+                return defaultValue;
+            }
+        }
+        
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.log('JSON parse error for:', jsonString, 'Error:', error.message);
+        return defaultValue;
+    }
+}
+
+// Check if table has a specific column
+async function hasColumn(tableName, columnName) {
+    try {
+        const [columns] = await pool.execute(`
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?
+        `, [process.env.DB_NAME || 'campus_lost_found', tableName, columnName]);
+        
+        return columns.length > 0;
+    } catch (error) {
+        console.error('Error checking column:', error);
+        return false;
+    }
+}
+
 // @route   POST /api/items
 // @desc    Create new item (lost or found)
 // @access  Private
@@ -91,47 +133,67 @@ router.post('/', authenticateToken, upload.array('images', 5), async (req, res) 
             });
         }
 
-        // Get category ID if category is provided
-        let categoryId = null;
-        if (category) {
-            const [categoryResult] = await pool.execute(
-                'SELECT category_id FROM categories WHERE name = ?',
-                [category]
-            );
-            categoryId = categoryResult.length > 0 ? categoryResult[0].category_id : null;
+        // Check if category column exists
+        const hasCategoryColumn = await hasColumn('items', 'category');
+        
+        let insertQuery, insertParams;
+        
+        if (hasCategoryColumn) {
+            // Use category column
+            insertQuery = `
+                INSERT INTO items (
+                    reporter_id, type, title, description, category, location,
+                    date_lost_found, time_lost_found, contact_info, verification_questions,
+                    reward_amount, images, is_verified, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            insertParams = [
+                req.user.user_id,
+                type,
+                title,
+                description,
+                category || null,
+                location,
+                dateLostFound,
+                timeLostFound || null,
+                JSON.stringify(parsedContactInfo),
+                JSON.stringify(parsedVerificationQuestions),
+                rewardAmount || 0,
+                JSON.stringify(images),
+                false, // Requires admin verification
+                'active'
+            ];
+        } else {
+            // Don't use category column (original schema)
+            insertQuery = `
+                INSERT INTO items (
+                    reporter_id, type, title, description, location,
+                    date_lost_found, contact_info, verification_questions,
+                    images, is_verified, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            insertParams = [
+                req.user.user_id,
+                type,
+                title,
+                description,
+                location,
+                dateLostFound,
+                JSON.stringify(parsedContactInfo),
+                JSON.stringify(parsedVerificationQuestions),
+                JSON.stringify(images),
+                false, // Requires admin verification
+                'active'
+            ];
         }
 
-        // For location, we'll store it as text now instead of looking up ID
         // Insert item into database
-        const [result] = await pool.execute(`
-            INSERT INTO items (
-                reporter_id, type, title, description, category_id, location,
-                date_lost_found, time_lost_found, contact_info, verification_questions,
-                reward_amount, images, is_verified, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            req.user.user_id,
-            type,
-            title,
-            description,
-            categoryId,
-            location, // Store location as text
-            dateLostFound,
-            timeLostFound || null,
-            JSON.stringify(parsedContactInfo),
-            JSON.stringify(parsedVerificationQuestions),
-            rewardAmount || 0,
-            JSON.stringify(images),
-            false, // Requires admin verification
-            'active'
-        ]);
+        const [result] = await pool.execute(insertQuery, insertParams);
 
         // Get the created item
         const [newItem] = await pool.execute(`
-            SELECT i.*, c.name as category_name,
-                   u.first_name, u.last_name
+            SELECT i.*, u.first_name, u.last_name
             FROM items i
-            LEFT JOIN categories c ON i.category_id = c.category_id
             LEFT JOIN users u ON i.reporter_id = u.user_id
             WHERE i.item_id = ?
         `, [result.insertId]);
@@ -186,8 +248,10 @@ router.get('/', async (req, res) => {
             queryParams.push(status);
         }
 
-        if (category) {
-            whereConditions.push('c.name = ?');
+        // Check if category column exists before filtering
+        const hasCategoryColumn = await hasColumn('items', 'category');
+        if (category && hasCategoryColumn) {
+            whereConditions.push('i.category = ?');
             queryParams.push(category);
         }
 
@@ -207,7 +271,6 @@ router.get('/', async (req, res) => {
         const [countResult] = await pool.execute(`
             SELECT COUNT(*) as total
             FROM items i
-            LEFT JOIN categories c ON i.category_id = c.category_id
             ${whereClause}
         `, queryParams);
 
@@ -218,11 +281,9 @@ router.get('/', async (req, res) => {
         const itemsQuery = `
             SELECT 
                 i.*,
-                c.name as category_name,
                 CONCAT(u.first_name, ' ', u.last_name) as reporter_name,
                 u.email as reporter_email
             FROM items i
-            LEFT JOIN categories c ON i.category_id = c.category_id
             LEFT JOIN users u ON i.reporter_id = u.user_id
             ${whereClause}
             ORDER BY i.${sortBy} ${sortOrder}
@@ -231,12 +292,12 @@ router.get('/', async (req, res) => {
 
         const [items] = await pool.execute(itemsQuery, [...queryParams, parseInt(limit), parseInt(offset)]);
 
-        // Parse JSON fields
+        // Parse JSON fields safely
         const itemsWithParsedData = items.map(item => ({
             ...item,
-            images: item.images ? JSON.parse(item.images) : [],
-            contact_info: item.contact_info ? JSON.parse(item.contact_info) : {},
-            verification_questions: item.verification_questions ? JSON.parse(item.verification_questions) : []
+            images: safeJsonParse(item.images, []),
+            contact_info: safeJsonParse(item.contact_info, {}),
+            verification_questions: safeJsonParse(item.verification_questions, [])
         }));
 
         res.json({
@@ -267,19 +328,20 @@ router.get('/:id', async (req, res) => {
     try {
         const itemId = req.params.id;
 
-        // Increment view count
-        await pool.execute('UPDATE items SET view_count = view_count + 1 WHERE item_id = ?', [itemId]);
+        // Check if view_count column exists before updating
+        const hasViewCount = await hasColumn('items', 'view_count');
+        if (hasViewCount) {
+            await pool.execute('UPDATE items SET view_count = COALESCE(view_count, 0) + 1 WHERE item_id = ?', [itemId]);
+        }
 
         // Get item details
         const [items] = await pool.execute(`
             SELECT 
                 i.*,
-                c.name as category_name,
                 CONCAT(u.first_name, ' ', u.last_name) as reporter_name,
                 u.email as reporter_email,
                 u.phone as reporter_phone
             FROM items i
-            LEFT JOIN categories c ON i.category_id = c.category_id
             LEFT JOIN users u ON i.reporter_id = u.user_id
             WHERE i.item_id = ? AND i.is_verified = TRUE
         `, [itemId]);
@@ -293,10 +355,10 @@ router.get('/:id', async (req, res) => {
 
         const item = items[0];
 
-        // Parse JSON fields
-        item.images = item.images ? JSON.parse(item.images) : [];
-        item.contact_info = item.contact_info ? JSON.parse(item.contact_info) : {};
-        item.verification_questions = item.verification_questions ? JSON.parse(item.verification_questions) : [];
+        // Parse JSON fields safely
+        item.images = safeJsonParse(item.images, []);
+        item.contact_info = safeJsonParse(item.contact_info, {});
+        item.verification_questions = safeJsonParse(item.verification_questions, []);
 
         res.json({
             success: true,
@@ -317,6 +379,8 @@ router.get('/:id', async (req, res) => {
 // @access  Private
 router.get('/user/my-items', authenticateToken, async (req, res) => {
     try {
+        console.log(`📋 Fetching items for user ID: ${req.user.user_id}`);
+        
         const { type, status } = req.query;
         
         let whereConditions = ['i.reporter_id = ?'];
@@ -335,25 +399,42 @@ router.get('/user/my-items', authenticateToken, async (req, res) => {
         const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
 
         const [items] = await pool.execute(`
-            SELECT 
-                i.*,
-                c.name as category_name
+            SELECT i.*
             FROM items i
-            LEFT JOIN categories c ON i.category_id = c.category_id
             ${whereClause}
             ORDER BY i.created_at DESC
         `, queryParams);
 
-        // Parse JSON fields and add dummy claim counts for now
-        const itemsWithParsedData = items.map(item => ({
-            ...item,
-            images: item.images ? JSON.parse(item.images) : [],
-            contact_info: item.contact_info ? JSON.parse(item.contact_info) : {},
-            verification_questions: item.verification_questions ? JSON.parse(item.verification_questions) : [],
-            pending_claims: 0, // Will be real data in Phase 2
-            approved_claims: 0,
-            location_name: item.location // Since location is now text
-        }));
+        console.log(`📋 Found ${items.length} items for user`);
+
+        // Parse JSON fields safely and add dummy claim counts for now
+        const itemsWithParsedData = items.map(item => {
+            try {
+                return {
+                    ...item,
+                    images: safeJsonParse(item.images, []),
+                    contact_info: safeJsonParse(item.contact_info, {}),
+                    verification_questions: safeJsonParse(item.verification_questions, []),
+                    pending_claims: 0, // Will be real data in Phase 2
+                    approved_claims: 0,
+                    category_name: item.category || 'Uncategorized', // Handle missing category column
+                    location_name: item.location // Since location is text
+                };
+            } catch (error) {
+                console.error('Error processing item:', item.item_id, error);
+                // Return item with safe defaults
+                return {
+                    ...item,
+                    images: [],
+                    contact_info: {},
+                    verification_questions: [],
+                    pending_claims: 0,
+                    approved_claims: 0,
+                    category_name: 'Uncategorized',
+                    location_name: item.location || 'Unknown'
+                };
+            }
+        });
 
         res.json({
             success: true,
@@ -463,13 +544,33 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 });
 
 // @route   GET /api/items/meta/categories
-// @desc    Get all categories
+// @desc    Get all categories (or return default ones if table doesn't exist)
 // @access  Public
 router.get('/meta/categories', async (req, res) => {
     try {
-        const [categories] = await pool.execute(
-            'SELECT * FROM categories WHERE is_active = TRUE ORDER BY name'
-        );
+        // Try to get categories from database, but provide defaults if table doesn't exist
+        let categories = [];
+        
+        try {
+            const [result] = await pool.execute(
+                'SELECT * FROM categories WHERE is_active = TRUE ORDER BY name'
+            );
+            categories = result;
+        } catch (dbError) {
+            // If categories table doesn't exist, provide default categories
+            console.log('Categories table not found, using defaults');
+            categories = [
+                { category_id: 1, name: 'Electronics', is_active: true },
+                { category_id: 2, name: 'Books & Stationery', is_active: true },
+                { category_id: 3, name: 'Clothing & Accessories', is_active: true },
+                { category_id: 4, name: 'Bags & Backpacks', is_active: true },
+                { category_id: 5, name: 'Keys & Cards', is_active: true },
+                { category_id: 6, name: 'Sports Equipment', is_active: true },
+                { category_id: 7, name: 'Jewelry & Watches', is_active: true },
+                { category_id: 8, name: 'Documents', is_active: true },
+                { category_id: 9, name: 'Other', is_active: true }
+            ];
+        }
 
         res.json({
             success: true,
@@ -485,13 +586,36 @@ router.get('/meta/categories', async (req, res) => {
 });
 
 // @route   GET /api/items/meta/locations
-// @desc    Get all locations
+// @desc    Get all locations (or return default ones if table doesn't exist)
 // @access  Public
 router.get('/meta/locations', async (req, res) => {
     try {
-        const [locations] = await pool.execute(
-            'SELECT * FROM locations WHERE is_active = TRUE ORDER BY name'
-        );
+        // Try to get locations from database, but provide defaults if table doesn't exist
+        let locations = [];
+        
+        try {
+            const [result] = await pool.execute(
+                'SELECT * FROM locations WHERE is_active = TRUE ORDER BY name'
+            );
+            locations = result;
+        } catch (dbError) {
+            // If locations table doesn't exist, provide default locations
+            console.log('Locations table not found, using defaults');
+            locations = [
+                { location_id: 1, name: 'Main Library', is_active: true },
+                { location_id: 2, name: 'Computer Lab 1', is_active: true },
+                { location_id: 3, name: 'Computer Lab 2', is_active: true },
+                { location_id: 4, name: 'Cafeteria', is_active: true },
+                { location_id: 5, name: 'Gym/Sports Complex', is_active: true },
+                { location_id: 6, name: 'Student Center', is_active: true },
+                { location_id: 7, name: 'Lecture Hall A', is_active: true },
+                { location_id: 8, name: 'Lecture Hall B', is_active: true },
+                { location_id: 9, name: 'Parking Lot', is_active: true },
+                { location_id: 10, name: 'Dormitory', is_active: true },
+                { location_id: 11, name: 'Admin Building', is_active: true },
+                { location_id: 12, name: 'Other', is_active: true }
+            ];
+        }
 
         res.json({
             success: true,
@@ -505,5 +629,6 @@ router.get('/meta/locations', async (req, res) => {
         });
     }
 });
+
 
 module.exports = router;

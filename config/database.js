@@ -41,7 +41,7 @@ async function initializeDatabase() {
             )
         `);
 
-        // Create items table (for future use)
+        // Create items table with proper structure
         await pool.execute(`
             CREATE TABLE IF NOT EXISTS items (
                 item_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -50,21 +50,130 @@ async function initializeDatabase() {
                 status ENUM('active', 'claimed', 'returned', 'closed') DEFAULT 'active',
                 title VARCHAR(100) NOT NULL,
                 description TEXT NOT NULL,
-                category VARCHAR(50) NOT NULL,
+                category VARCHAR(50),
                 location VARCHAR(100) NOT NULL,
                 date_lost_found DATE NOT NULL,
-                contact_info TEXT,
+                time_lost_found TIME,
+                contact_info JSON,
                 verification_questions JSON,
+                reward_amount DECIMAL(10,2) DEFAULT 0.00,
                 images JSON,
                 is_verified BOOLEAN DEFAULT FALSE,
                 admin_notes TEXT,
+                view_count INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
                 INDEX idx_type_status (type, status),
+                INDEX idx_reporter (reporter_id),
+                INDEX idx_verified (is_verified),
                 INDEX idx_created_at (created_at)
             )
         `);
+
+        // Check if we need to add missing columns to existing items table
+        try {
+            const [columns] = await pool.execute(`
+                SELECT COLUMN_NAME 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'items'
+            `, [process.env.DB_NAME || 'campus_lost_found']);
+            
+            const existingColumns = columns.map(col => col.COLUMN_NAME);
+            
+            // Add missing columns if they don't exist
+            if (!existingColumns.includes('time_lost_found')) {
+                await pool.execute('ALTER TABLE items ADD COLUMN time_lost_found TIME');
+                console.log('✅ Added time_lost_found column');
+            }
+            
+            if (!existingColumns.includes('reward_amount')) {
+                await pool.execute('ALTER TABLE items ADD COLUMN reward_amount DECIMAL(10,2) DEFAULT 0.00');
+                console.log('✅ Added reward_amount column');
+            }
+            
+            if (!existingColumns.includes('view_count')) {
+                await pool.execute('ALTER TABLE items ADD COLUMN view_count INT DEFAULT 0');
+                console.log('✅ Added view_count column');
+            }
+            
+        } catch (alterError) {
+            console.log('⚠️  Could not alter table (might be first run):', alterError.message);
+        }
+
+        // Create optional tables for categories and locations (for future use)
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS categories (
+                category_id INT PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(50) UNIQUE NOT NULL,
+                description TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS locations (
+                location_id INT PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(100) UNIQUE NOT NULL,
+                description TEXT,
+                building VARCHAR(50),
+                floor VARCHAR(10),
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Insert default categories if table is empty
+        const [categoryCount] = await pool.execute('SELECT COUNT(*) as count FROM categories');
+        if (categoryCount[0].count === 0) {
+            const defaultCategories = [
+                'Electronics',
+                'Books & Stationery', 
+                'Clothing & Accessories',
+                'Bags & Backpacks',
+                'Keys & Cards',
+                'Sports Equipment',
+                'Jewelry & Watches',
+                'Documents',
+                'Other'
+            ];
+            
+            for (const category of defaultCategories) {
+                await pool.execute(
+                    'INSERT INTO categories (name) VALUES (?)',
+                    [category]
+                );
+            }
+            console.log('✅ Default categories inserted');
+        }
+
+        // Insert default locations if table is empty
+        const [locationCount] = await pool.execute('SELECT COUNT(*) as count FROM locations');
+        if (locationCount[0].count === 0) {
+            const defaultLocations = [
+                { name: 'Main Library', building: 'Library Building' },
+                { name: 'Computer Lab 1', building: 'CS Building' },
+                { name: 'Computer Lab 2', building: 'CS Building' },
+                { name: 'Cafeteria', building: 'Student Center' },
+                { name: 'Gym/Sports Complex', building: 'Sports Building' },
+                { name: 'Student Center', building: 'Student Center' },
+                { name: 'Lecture Hall A', building: 'Academic Building' },
+                { name: 'Lecture Hall B', building: 'Academic Building' },
+                { name: 'Parking Lot', building: 'Outdoor' },
+                { name: 'Dormitory', building: 'Residential' },
+                { name: 'Admin Building', building: 'Administration' },
+                { name: 'Other', building: 'Various' }
+            ];
+            
+            for (const location of defaultLocations) {
+                await pool.execute(
+                    'INSERT INTO locations (name, building) VALUES (?, ?)',
+                    [location.name, location.building]
+                );
+            }
+            console.log('✅ Default locations inserted');
+        }
 
         console.log('✅ Database tables initialized successfully');
         

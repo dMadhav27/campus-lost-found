@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .item-details-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .item-type-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .item-type-lost {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .item-type-found {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .item-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .item-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--gray-medium);
+            margin-bottom: 2rem;
+        }
+
+        .item-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .detail-content h4 {
+            font-size: 0.875rem;
+            color: var(--gray-medium);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-content p {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .images-section {
+            margin-bottom: 2rem;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--gray-border);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .image-item:hover {
+            transform: scale(1.02);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .no-images {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-medium);
+            background: var(--gray-light);
+            border-radius: 10px;
+            border: 2px dashed var(--gray-border);
+        }
+
+        .edit-mode {
+            display: none;
+        }
+
+        .edit-mode.active {
+            display: block;
+        }
+
+        .view-mode.editing {
+            display: none;
+        }
+
+        .edit-form {
+            background: var(--gray-light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-border);
+            color: var(--gray-medium);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .item-details-container {
+                padding: 0 1rem;
+            }
+
+            .item-card {
+                padding: 1.5rem;
+            }
+
+            .item-title {
+                font-size: 1.5rem;
+            }
+
+            .item-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-search-location"></i>
+                    Campus Lost & Found
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html" class="nav-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="/browse-items.html" class="nav-link">
+                        <i class="fas fa-search"></i> Browse
+                    </a></li>
+                    <li><a href="/report-item.html" class="nav-link">
+                        <i class="fas fa-plus"></i> Report Item
+                    </a></li>
+                    <li><a href="/my-items.html" class="nav-link">
+                        <i class="fas fa-list"></i> My Items
+                    </a></li>
+                    <li>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="user-name">Loading...</span>
+                            <div class="user-avatar">JD</div>
+                            <button class="btn btn-outline" id="logoutBtn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="item-details-container">
+            <!-- Header -->
+            <div class="item-header">
+                <button class="back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to My Items
+                </button>
+                <div id="editToggle" style="display: none;">
+                    <button class="btn btn-primary" onclick="toggleEditMode()">
+                        <i class="fas fa-edit"></i>
+                        <span id="editButtonText">Edit Item</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="messageContainer"></div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="item-card" style="text-align: center; padding: 3rem;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                <p>Loading item details...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="item-card" style="text-align: center; padding: 3rem; display: none;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color); margin-bottom: 1rem;"></i>
+                <h3>Item Not Found</h3>
+                <p>The item you're looking for doesn't exist or you don't have permission to view it.</p>
+                <button class="btn btn-primary" onclick="goBack()" style="margin-top: 1rem;">
+                    <i class="fas fa-arrow-left"></i>
+                    Go Back
+                </button>
+            </div>
+
+            <!-- Item Details -->
+            <div id="itemContainer" style="display: none;">
+                <!-- View Mode -->
+                <div class="item-card view-mode" id="viewMode">
+                    <div id="itemTypeDisplay"></div>
+                    <h1 class="item-title" id="itemTitle"></h1>
+                    <p class="item-description" id="itemDescription"></p>
+                    
+                    <div class="item-details-grid" id="itemDetailsGrid">
+                        <!-- Details will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Images Section -->
+                    <div class="images-section">
+                        <h3 style="margin-bottom: 1rem;">
+                            <i class="fas fa-images"></i> Images
+                        </h3>
+                        <div id="imagesDisplay">
+                            <!-- Images will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Mode -->
+                <div class="item-card edit-mode" id="editMode">
+                    <h2 style="margin-bottom: 1.5rem;">Edit Item Details</h2>
+                    
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="editTitle" class="form-label">Title</label>
+                            <input type="text" id="editTitle" name="title" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea id="editDescription" name="description" class="form-textarea" rows="4" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editLocation" class="form-label">Location</label>
+                            <input type="text" id="editLocation" name="location" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editCategory" class="form-label">Category</label>
+                            <select id="editCategory" name="category" class="form-select">
+                                <option value="">Loading categories...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editStatus" class="form-label">Status</label>
+                            <select id="editStatus" name="status" class="form-select">
+                                <option value="active">Active</option>
+                                <option value="claimed">Claimed</option>
+                                <option value="returned">Returned</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+
+                        <div class="edit-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="cancelEdit()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <div class="loading-spinner"></div>
+                                <i class="fas fa-save"></i>
+                                <span class="btn-text">Save Changes</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentItem = null;
+        let isEditMode = false;
+        let isOwner = false;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemId = urlParams.get('id');
+            const editMode = urlParams.get('edit') === 'true';
+
+            if (!itemId) {
+                showError('No item ID provided');
+                return;
+            }
+
+            await loadItemDetails(itemId);
+            await loadCategories();
+
+            if (editMode && isOwner) {
+                toggleEditMode();
+            }
+        });
+
+        // Load item details
+        async function loadItemDetails(itemId) {
+            try {
+                // First try to get from user's items (to check ownership)
+                const userItemsResponse = await makeAuthenticatedRequest('/api/items/user/my-items');
+                
+                if (userItemsResponse.ok) {
+                    const userItemsResult = await userItemsResponse.json();
+                    const userItem = userItemsResult.items?.find(item => item.item_id == itemId);
+                    
+                    if (userItem) {
+                        // User owns this item
+                        currentItem = userItem;
+                        isOwner = true;
+                        document.getElementById('editToggle').style.display = 'block';
+                        displayItemDetails(currentItem);
+                        return;
+                    }
+                }
+
+                // If not owned by user, try to get from public items
+                const publicResponse = await fetch(`/api/items/${itemId}`);
+                
+                if (publicResponse.ok) {
+                    const publicResult = await publicResponse.json();
+                    if (publicResult.success) {
+                        currentItem = publicResult.item;
+                        isOwner = false;
+                        displayItemDetails(currentItem);
+                        return;
+                    }
+                }
+
+                // Item not found
+                showError('Item not found or you don\'t have permission to view it');
+
+            } catch (error) {
+                console.error('Error loading item:', error);
+                showError('Failed to load item details');
+            }
+        }
+
+        // Display item details
+        function displayItemDetails(item) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('itemContainer').style.display = 'block';
+
+            // Type badge
+            const typeDisplay = document.getElementById('itemTypeDisplay');
+            typeDisplay.innerHTML = `<div class="item-type-badge item-type-${item.type}">${item.type.toUpperCase()}</div>`;
+
+            // Basic info
+            document.getElementById('itemTitle').textContent = item.title;
+            document.getElementById('itemDescription').textContent = item.description;
+
+            // Details grid
+            const detailsGrid = document.getElementById('itemDetailsGrid');
+            detailsGrid.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-icon" style="background: var(--primary-color);">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                        <h4>Location</h4>
+                        <p>${item.location || 'Not specified'}</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon" style="background: var(--success-color);">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="detail-content">
+                        <h4>Date ${item.type === 'lost' ? 'Lost' : 'Found'}</h4>
+                        <p>${formatDate(item.date_lost_found)}</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon" style="background: var(--warning-color);">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="detail-content">
+                        <h4>Category</h4>
+                        <p>${item.category || item.category_name || 'Uncategorized'}</p>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon" style="background: var(--secondary-color);">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="detail-content">
+                        <h4>Status</h4>
+                        <p style="text-transform: capitalize;">${item.status || 'Active'}</p>
+                    </div>
+                </div>
+            `;
+
+            // Images
+            displayImages(item.images || []);
+
+            // Populate edit form if owner
+            if (isOwner) {
+                populateEditForm(item);
+            }
+        }
+
+        // Display images
+        function displayImages(images) {
+            const imagesDisplay = document.getElementById('imagesDisplay');
+            
+            if (!images || images.length === 0) {
+                imagesDisplay.innerHTML = `
+                    <div class="no-images">
+                        <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <p>No images available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const imagesGrid = document.createElement('div');
+            imagesGrid.className = 'images-grid';
+            
+            images.forEach(imagePath => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.innerHTML = `<img src="${imagePath}" alt="Item image" onclick="openImageModal('${imagePath}')">`;
+                imagesGrid.appendChild(imageItem);
+            });
+            
+            imagesDisplay.appendChild(imagesGrid);
+        }
+
+        // Populate edit form
+        function populateEditForm(item) {
+            document.getElementById('editTitle').value = item.title || '';
+            document.getElementById('editDescription').value = item.description || '';
+            document.getElementById('editLocation').value = item.location || '';
+            document.getElementById('editCategory').value = item.category || item.category_name || '';
+            document.getElementById('editStatus').value = item.status || 'active';
+        }
+
+        // Load categories for edit form
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/items/meta/categories');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = document.getElementById('editCategory');
+                    select.innerHTML = '<option value="">Select Category</option>';
+                    
+                    result.categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.name;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            if (!isOwner) return;
+            
+            isEditMode = !isEditMode;
+            
+            if (isEditMode) {
+                document.getElementById('viewMode').classList.add('editing');
+                document.getElementById('editMode').classList.add('active');
+                document.getElementById('editButtonText').textContent = 'Cancel Edit';
+            } else {
+                document.getElementById('viewMode').classList.remove('editing');
+                document.getElementById('editMode').classList.remove('active');
+                document.getElementById('editButtonText').textContent = 'Edit Item';
+            }
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            // Restore original values
+            if (currentItem) {
+                populateEditForm(currentItem);
+            }
+            toggleEditMode();
+        }
+
+        // Handle form submission
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.textContent = 'Saving...';
+            
+            try {
+                const formData = new FormData(e.target);
+                const updateData = {
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    location: formData.get('location'),
+                    category: formData.get('category'),
+                    status: formData.get('status')
+                };
+                
+                const response = await makeAuthenticatedRequest(`/api/items/${currentItem.item_id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update current item object
+                    Object.assign(currentItem, updateData);
+                    
+                    // Refresh display
+                    displayItemDetails(currentItem);
+                    
+                    // Exit edit mode
+                    toggleEditMode();
+                    
+                    // Show success message
+                    showMessage('success', 'Item updated successfully!');
+                } else {
+                    showMessage('error', result.error || 'Failed to update item');
+                }
+                
+            } catch (error) {
+                console.error('Update error:', error);
+                showMessage('error', 'Failed to update item. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Save Changes';
+            }
+        });
+
+        // Utility functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Not specified';
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function showMessage(type, message) {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message message-${type} show`;
+            messageEl.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            messageContainer.innerHTML = '';
+            messageContainer.appendChild(messageEl);
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                messageEl.remove();
+            }, 5000);
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorState').querySelector('p').textContent = message;
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function openImageModal(imagePath) {
+            // Simple image modal - you can enhance this
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+            
+            const img = document.createElement('img');
+            img.src = imagePath;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 10px;
+            `;
+            
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', () => modal.remove());
+        }
+
+        // Helper function for authenticated requests
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+    </script>
+</body>
+</html>

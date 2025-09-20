@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Item - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 1rem;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-border);
+            color: var(--gray-medium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .form-step {
+            display: none !important;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+        
+        .form-step.active {
+            display: block !important;
+        }
+        
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .type-option {
+            background: white;
+            border: 2px solid var(--gray-border);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .type-option:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow);
+        }
+        
+        .type-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .type-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .lost-icon {
+            color: var(--error-color);
+        }
+        
+        .found-icon {
+            color: var(--success-color);
+        }
+        
+        /* Security Questions Styling */
+        .security-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .security-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .security-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .security-info p {
+            margin: 0;
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+        
+        .question-item {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .question-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .question-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .remove-question {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-question:hover {
+            transform: scale(1.1);
+        }
+        
+        .question-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .field-label {
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .question-input, .answer-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .question-input:focus, .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .add-question {
+            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem auto 0;
+        }
+        
+        .add-question:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .security-tips {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .security-tips h5 {
+            color: var(--warning-color);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .security-tips ul {
+            margin: 0;
+            padding-left: 1rem;
+            color: var(--gray-medium);
+            font-size: 0.85rem;
+        }
+        
+        .security-tips li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-border);
+        }
+        
+        .image-upload-area {
+            border: 2px dashed var(--gray-border);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .image-upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .image-preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--gray-border);
+        }
+        
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .question-fields {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-search-location"></i>
+                    Campus Lost & Found
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html" class="nav-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="/browse-items.html" class="nav-link">
+                        <i class="fas fa-search"></i> Browse
+                    </a></li>
+                    <li><a href="/report-item.html" class="nav-link" style="color: var(--primary-color); font-weight: 600;">
+                        <i class="fas fa-plus"></i> Report Item
+                    </a></li>
+                    <li><a href="/my-items.html" class="nav-link">
+                        <i class="fas fa-list"></i> My Items
+                    </a></li>
+                    <li>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="user-name">Loading...</span>
+                            <div class="user-avatar">JD</div>
+                            <button class="btn btn-outline" id="logoutBtn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="form-container">
+            <div class="card">
+                <div class="form-header">
+                    <h1 class="form-title">Report an Item</h1>
+                    <p class="form-subtitle">Help reunite lost items with their owners through our secure verification system</p>
+                </div>
+
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <span>Type</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <span>Details</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <span>Security</span>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-number">4</div>
+                        <span>Review</span>
+                    </div>
+                </div>
+
+                <form id="reportItemForm" enctype="multipart/form-data">
+                    <!-- Step 1: Type Selection -->
+                    <div class="form-step active" id="step1">
+                        <h3 style="margin-bottom: 1.5rem; text-align: center;">What would you like to report?</h3>
+                        
+                        <div class="type-selector">
+                            <div class="type-option" data-type="lost">
+                                <div class="type-icon lost-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <h4>I Lost Something</h4>
+                                <p style="color: var(--gray-medium); margin-top: 0.5rem;">
+                                    Report an item you've lost and need help finding
+                                </p>
+                            </div>
+                            
+                            <div class="type-option" data-type="found">
+                                <div class="type-icon found-icon">
+                                    <i class="fas fa-hand-holding"></i>
+                                </div>
+                                <h4>I Found Something</h4>
+                                <p style="color: var(--gray-medium); margin-top: 0.5rem;">
+                                    Report an item you've found to help return it
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" name="type" id="itemType">
+                    </div>
+
+                    <!-- Step 2: Item Details -->
+                    <div class="form-step" id="step2">
+                        <h3 style="margin-bottom: 1.5rem;">Item Details</h3>
+                        
+                        <div class="form-group">
+                            <label for="title" class="form-label">
+                                Item Title <span class="required">*</span>
+                            </label>
+                            <input type="text" id="title" name="title" class="form-input" 
+                                   placeholder="e.g., iPhone 14 Pro - Black" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                Detailed Description <span class="required">*</span>
+                            </label>
+                            <textarea id="description" name="description" class="form-textarea" 
+                                      rows="4" placeholder="Provide a detailed description including color, brand, distinctive features, any damage, etc." required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category" class="form-label">Category</label>
+                                <select id="category" name="category" class="form-select">
+                                    <option value="">Loading categories...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="location" class="form-label">Location</label>
+                                <select id="location" name="location" class="form-select">
+                                    <option value="">Loading locations...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dateLostFound" class="form-label">
+                                    Date <span class="item-type-text">Lost/Found</span> <span class="required">*</span>
+                                </label>
+                                <input type="date" id="dateLostFound" name="dateLostFound" class="form-input" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timeLostFound" class="form-label">
+                                    Approximate Time
+                                </label>
+                                <input type="time" id="timeLostFound" name="timeLostFound" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rewardAmount" class="form-label">Reward Amount (Optional)</label>
+                            <input type="number" id="rewardAmount" name="rewardAmount" class="form-input" 
+                                   min="0" max="500" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <!-- Image Upload -->
+                        <div class="form-group">
+                            <label class="form-label">Images (Up to 5)</label>
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray-medium); margin-bottom: 1rem;"></i>
+                                <p><strong>Click to upload images</strong> or drag and drop</p>
+                                <p style="font-size: 0.85rem; color: var(--gray-medium);">
+                                    JPG, PNG, GIF up to 5MB each
+                                </p>
+                            </div>
+                            <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;">
+                            <div class="image-preview" id="imagePreview"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Security Questions -->
+                    <div class="form-step" id="step3">
+                        <h3 style="margin-bottom: 1.5rem;">Security Verification</h3>
+                        
+                        <div class="security-section">
+                            <div class="security-header">
+                                <div class="security-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="security-info">
+                                    <h4>Anti-Fraud Protection</h4>
+                                    <p>Create security questions that only the true owner would know. This prevents false claims and ensures items reach their rightful owners.</p>
+                                </div>
+                            </div>
+                            
+                            <div id="questionsContainer">
+                                <!-- Questions will be populated by JavaScript -->
+                            </div>
+                            
+                            <button type="button" class="add-question" onclick="addSecurityQuestion()">
+                                <i class="fas fa-plus"></i>
+                                Add Security Question
+                            </button>
+                            
+                            <div class="security-tips">
+                                <h5>
+                                    <i class="fas fa-lightbulb"></i>
+                                    Security Tips
+                                </h5>
+                                <ul>
+                                    <li>Ask about specific details only you would know (contents, hidden damage, personal modifications)</li>
+                                    <li>Avoid obvious questions like "What color is it?" that anyone can guess from photos</li>
+                                    <li>Include details about when/where it was purchased or received</li>
+                                    <li>Ask about specific text, stickers, or markings not visible in photos</li>
+                                    <li>Minimum 2 questions required, maximum 5 questions allowed</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <h4 style="margin: 2rem 0 1rem;">Contact Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactEmail" class="form-label">Email</label>
+                                <input type="email" id="contactEmail" name="contactEmail" class="form-input" 
+                                       placeholder="your.email@college.edu">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactPhone" class="form-label">Phone (Optional)</label>
+                                <input type="tel" id="contactPhone" name="contactPhone" class="form-input" 
+                                       placeholder="+1 (555) 123-4567">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Preferred Contact Method</label>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="radio" name="preferredContact" value="email" checked>
+                                    Email
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="radio" name="preferredContact" value="phone">
+                                    Phone
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="radio" name="preferredContact" value="both">
+                                    Both
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Review -->
+                    <div class="form-step" id="step4">
+                        <h3 style="margin-bottom: 1.5rem;">Review Your Report</h3>
+                        <p style="color: var(--gray-medium); margin-bottom: 2rem;">
+                            Please review all information before submitting. Your report will be verified by administrators before becoming visible to other users.
+                        </p>
+                        
+                        <div id="reviewSummary">
+                            <!-- Summary will be populated by JavaScript -->
+                        </div>
+
+                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; padding: 1rem; margin: 1.5rem 0;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--warning-color);">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Important</strong>
+                            </div>
+                            <p style="color: var(--gray-medium); font-size: 0.9rem;">
+                                • Your report will be reviewed by administrators before being published<br>
+                                • False or misleading reports may result in account suspension<br>
+                                • Security questions help ensure items reach their rightful owners<br>
+                                • You will be notified when someone claims your item
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-outline" id="prevBtn" style="display: none;">
+                            <i class="fas fa-arrow-left"></i>
+                            Previous
+                        </button>
+                        <div></div>
+                        <button type="button" class="btn btn-primary" id="nextBtn">
+                            Next
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <i class="fas fa-paper-plane"></i>
+                            <span class="btn-text">Submit Report</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentStep = 1;
+        let selectedImages = [];
+        let selectedType = '';
+        let securityQuestions = [];
+
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing enhanced report item form...');
+            loadCategories();
+            loadLocations();
+            setupEventListeners();
+            populateUserEmail();
+            initializeSecurityQuestions();
+        });
+
+        // Initialize with first security question
+        function initializeSecurityQuestions() {
+            securityQuestions = [
+                { question: '', answer: '' },
+                { question: '', answer: '' }
+            ];
+            renderSecurityQuestions();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Type selection
+            document.querySelectorAll('.type-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedType = this.dataset.type;
+                    document.getElementById('itemType').value = selectedType;
+                    
+                    // Update text based on type
+                    const typeText = selectedType === 'lost' ? 'Lost' : 'Found';
+                    document.querySelectorAll('.item-type-text').forEach(el => {
+                        el.textContent = typeText;
+                    });
+                });
+            });
+
+            // Navigation buttons
+            document.getElementById('nextBtn').addEventListener('click', nextStep);
+            document.getElementById('prevBtn').addEventListener('click', previousStep);
+
+            // Form submission
+            document.getElementById('reportItemForm').addEventListener('submit', handleFormSubmit);
+
+            // Image upload
+            setupImageUpload();
+        }
+
+        // Security Questions Management
+        function renderSecurityQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            securityQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">${index + 1}</div>
+                        ${securityQuestions.length > 2 ? `
+                            <button type="button" class="remove-question" onclick="removeSecurityQuestion(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="question-fields">
+                        <div>
+                            <label class="field-label">Security Question</label>
+                            <input type="text" class="question-input" placeholder="e.g., What's written inside the cover?" 
+                                   value="${q.question}" onchange="updateSecurityQuestion(${index}, 'question', this.value)">
+                        </div>
+                        <div>
+                            <label class="field-label">Correct Answer</label>
+                            <input type="text" class="answer-input" placeholder="Your answer" 
+                                   value="${q.answer}" onchange="updateSecurityQuestion(${index}, 'answer', this.value)">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function addSecurityQuestion() {
+            if (securityQuestions.length >= 5) {
+                alert('Maximum 5 security questions allowed');
+                return;
+            }
+            
+            securityQuestions.push({ question: '', answer: '' });
+            renderSecurityQuestions();
+        }
+
+        function removeSecurityQuestion(index) {
+            if (securityQuestions.length <= 2) {
+                alert('Minimum 2 security questions required');
+                return;
+            }
+            
+            securityQuestions.splice(index, 1);
+            renderSecurityQuestions();
+        }
+
+        function updateSecurityQuestion(index, field, value) {
+            securityQuestions[index][field] = value;
+        }
+
+        // Step navigation
+        function nextStep() {
+            console.log('Next step clicked, current:', currentStep);
+            if (validateCurrentStep()) {
+                if (currentStep < 4) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            }
+        }
+
+        function previousStep() {
+            console.log('Previous step clicked, current:', currentStep);
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function showStep(step) {
+            console.log('Showing step:', step);
+            
+            // Hide all steps
+            for (let i = 1; i <= 4; i++) {
+                const stepElement = document.getElementById('step' + i);
+                stepElement.classList.remove('active');
+                stepElement.style.display = 'none';
+            }
+            
+            // Show current step
+            const currentStepElement = document.getElementById('step' + step);
+            currentStepElement.classList.add('active');
+            currentStepElement.style.display = 'block';
+            
+            // Update step indicator
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active', 'completed'));
+            
+            for (let i = 1; i <= step; i++) {
+                const indicator = document.querySelector(`.step[data-step="${i}"]`);
+                if (indicator) {
+                    if (i < step) {
+                        indicator.classList.add('completed');
+                    } else if (i === step) {
+                        indicator.classList.add('active');
+                    }
+                }
+            }
+            
+            // Show/hide navigation buttons
+            document.getElementById('prevBtn').style.display = step > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = step < 4 ? 'block' : 'none';
+            document.getElementById('submitBtn').style.display = step === 4 ? 'block' : 'none';
+            
+            // Generate review summary for step 4
+            if (step === 4) {
+                generateReviewSummary();
+            }
+        }
+
+        function validateCurrentStep() {
+            switch (currentStep) {
+                case 1:
+                    if (!selectedType) {
+                        alert('Please select whether you lost or found an item');
+                        return false;
+                    }
+                    break;
+                case 2:
+                    const title = document.getElementById('title').value.trim();
+                    const description = document.getElementById('description').value.trim();
+                    const dateLostFound = document.getElementById('dateLostFound').value;
+                    
+                    if (!title) {
+                        alert('Please enter an item title');
+                        return false;
+                    }
+                    if (!description) {
+                        alert('Please provide a detailed description');
+                        return false;
+                    }
+                    if (!dateLostFound) {
+                        alert('Please select the date');
+                        return false;
+                    }
+                    break;
+                case 3:
+                    // Validate security questions
+                    const validQuestions = securityQuestions.filter(q => 
+                        q.question.trim().length >= 5 && q.answer.trim().length >= 1
+                    );
+                    
+                    if (validQuestions.length < 2) {
+                        alert('Please provide at least 2 complete security questions with answers (minimum 5 characters for questions)');
+                        return false;
+                    }
+                    
+                    // Check for generic questions
+                    const genericPatterns = ['what color', 'what brand', 'what size'];
+                    const hasGeneric = validQuestions.some(q => 
+                        genericPatterns.some(pattern => 
+                            q.question.toLowerCase().includes(pattern) && q.answer.length < 5
+                        )
+                    );
+                    
+                    if (hasGeneric) {
+                        if (!confirm('Some questions appear generic and may be easy to guess. Are you sure you want to continue?')) {
+                            return false;
+                        }
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        // Load categories and locations
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/items/meta/categories');
+                const result = await response.json();
+                if (result.success) {
+                    const select = document.getElementById('category');
+                    select.innerHTML = '<option value="">Select Category</option>';
+                    result.categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.name;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                    console.log('Categories loaded:', result.categories.length);
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadLocations() {
+            try {
+                const response = await fetch('/api/items/meta/locations');
+                const result = await response.json();
+                if (result.success) {
+                    const select = document.getElementById('location');
+                    select.innerHTML = '<option value="">Select Location</option>';
+                    result.locations.forEach(loc => {
+                        const option = document.createElement('option');
+                        option.value = loc.name;
+                        option.textContent = loc.name;
+                        select.appendChild(option);
+                    });
+                    console.log('Locations loaded:', result.locations.length);
+                }
+            } catch (error) {
+                console.error('Error loading locations:', error);
+            }
+        }
+
+        // Populate user email
+        function populateUserEmail() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            if (userData.email) {
+                document.getElementById('contactEmail').value = userData.email;
+            }
+        }
+
+        // Image upload handling
+        function setupImageUpload() {
+            const input = document.getElementById('images');
+            const uploadArea = document.getElementById('imageUploadArea');
+            const preview = document.getElementById('imagePreview');
+            
+            uploadArea.addEventListener('click', () => input.click());
+            
+            input.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                
+                if (selectedImages.length + files.length > 5) {
+                    alert('Maximum 5 images allowed');
+                    return;
+                }
+                
+                files.forEach(file => {
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        selectedImages.push({
+                            file: file,
+                            url: e.target.result
+                        });
+                        updateImagePreview();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        function updateImagePreview() {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            selectedImages.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = 'image-preview-item';
+                div.innerHTML = `
+                    <img src="${img.url}" alt="Preview">
+                    <button type="button" class="remove-image" onclick="removeImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                preview.appendChild(div);
+            });
+        }
+
+        function removeImage(index) {
+            selectedImages.splice(index, 1);
+            updateImagePreview();
+        }
+
+        // Generate review summary
+        function generateReviewSummary() {
+            const type = selectedType;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+            const location = document.getElementById('location').value;
+            const dateLostFound = document.getElementById('dateLostFound').value;
+            const timeLostFound = document.getElementById('timeLostFound').value;
+            const rewardAmount = document.getElementById('rewardAmount').value;
+            
+            const validQuestions = securityQuestions.filter(q => 
+                q.question.trim().length >= 5 && q.answer.trim().length >= 1
+            );
+            
+            const summary = document.getElementById('reviewSummary');
+            summary.innerHTML = `
+                <div style="background: var(--gray-light); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-color);">Report Summary</h4>
+                    <div style="display: grid; gap: 0.5rem;">
+                        <p><strong>Type:</strong> ${type.charAt(0).toUpperCase() + type.slice(1)} Item</p>
+                        <p><strong>Title:</strong> ${title}</p>
+                        <p><strong>Description:</strong> ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</p>
+                        <p><strong>Category:</strong> ${category || 'Not specified'}</p>
+                        <p><strong>Location:</strong> ${location || 'Not specified'}</p>
+                        <p><strong>Date:</strong> ${dateLostFound}${timeLostFound ? ' at ' + timeLostFound : ''}</p>
+                        ${rewardAmount ? `<p><strong>Reward:</strong> $${rewardAmount}</p>` : ''}
+                        <p><strong>Images:</strong> ${selectedImages.length} uploaded</p>
+                    </div>
+                </div>
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 10px;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-color);">Security Questions (${validQuestions.length})</h4>
+                    ${validQuestions.map((q, index) => `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>Q${index + 1}:</strong> ${q.question}<br>
+                            <span style="color: var(--gray-medium); font-size: 0.9rem;">Answer: ${q.answer}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const btnText = submitBtn.querySelector('.btn-text');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            if (spinner) spinner.style.display = 'block';
+            if (btnText) btnText.textContent = 'Submitting...';
+            
+            try {
+                const formData = new FormData();
+                
+                // Add form fields
+                formData.append('type', selectedType);
+                formData.append('title', document.getElementById('title').value);
+                formData.append('description', document.getElementById('description').value);
+                formData.append('category', document.getElementById('category').value);
+                formData.append('location', document.getElementById('location').value);
+                formData.append('dateLostFound', document.getElementById('dateLostFound').value);
+                formData.append('timeLostFound', document.getElementById('timeLostFound').value);
+                formData.append('rewardAmount', document.getElementById('rewardAmount').value);
+                
+                // Add contact info
+                const contactInfo = {
+                    email: document.getElementById('contactEmail').value,
+                    phone: document.getElementById('contactPhone').value,
+                    preferred_contact: document.querySelector('input[name="preferredContact"]:checked').value
+                };
+                formData.append('contactInfo', JSON.stringify(contactInfo));
+                
+                // Add security questions - only valid ones
+                const validQuestions = securityQuestions.filter(q => 
+                    q.question.trim().length >= 5 && q.answer.trim().length >= 1
+                );
+                formData.append('verificationQuestions', JSON.stringify(validQuestions));
+                
+                // Add images
+                selectedImages.forEach(img => {
+                    formData.append('images', img.file);
+                });
+                
+                const response = await makeAuthenticatedRequest('/api/items', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    window.location.href = '/my-items.html';
+                } else {
+                    alert(result.error || 'Failed to submit report');
+                }
+                
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Failed to submit report. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (btnText) btnText.textContent = 'Submit Report';
+            }
+        }
+
+        // Helper function for authenticated requests
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            
+            // Don't set Content-Type for FormData
+            if (!(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+            }
+            
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+    </script>
+</body>
+</html>

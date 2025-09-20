@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Report Test</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .test-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 2px solid #333;
+        }
+        
+        .step {
+            display: none;
+            padding: 20px;
+            border: 2px solid red;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        
+        .step.active {
+            display: block !important;
+            border-color: green;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .debug {
+            background: yellow;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Simple Multi-Step Form Test</h1>
+        
+        <div class="debug">
+            Current Step: <span id="currentStep">1</span>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="step active" id="step1">
+            <h2>Step 1: Choose Type</h2>
+            <button onclick="selectType('lost')">Lost Item</button>
+            <button onclick="selectType('found')">Found Item</button>
+            <p>Selected: <span id="selectedType">None</span></p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" id="step2">
+            <h2>Step 2: Item Details</h2>
+            <label>Title:</label>
+            <input type="text" class="form-input" placeholder="Item title" id="title">
+            
+            <label>Description:</label>
+            <textarea class="form-textarea" rows="3" placeholder="Description" id="description"></textarea>
+            
+            <label>Category:</label>
+            <select class="form-select" id="category">
+                <option value="">Loading categories...</option>
+            </select>
+            
+            <label>Location:</label>
+            <select class="form-select" id="location">
+                <option value="">Loading locations...</option>
+            </select>
+            
+            <label>Date:</label>
+            <input type="date" class="form-input" id="date">
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step" id="step3">
+            <h2>Step 3: Review</h2>
+            <div id="review">Review content will appear here</div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="prevStep()" id="prevBtn" style="display: none;">Previous</button>
+            <button onclick="nextStep()" id="nextBtn">Next</button>
+            <button onclick="submit()" id="submitBtn" style="display: none;">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStepNum = 1;
+        let selectedTypeValue = '';
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, loading data...');
+            loadData();
+        });
+
+        function selectType(type) {
+            selectedTypeValue = type;
+            document.getElementById('selectedType').textContent = type;
+            console.log('Type selected:', type);
+        }
+
+        function showStep(step) {
+            console.log('=== SHOWING STEP ===', step);
+            
+            // Hide all steps
+            for (let i = 1; i <= 3; i++) {
+                const stepElement = document.getElementById('step' + i);
+                stepElement.classList.remove('active');
+                stepElement.style.display = 'none';
+                console.log('Hiding step', i);
+            }
+            
+            // Show current step
+            const currentStepElement = document.getElementById('step' + step);
+            currentStepElement.classList.add('active');
+            currentStepElement.style.display = 'block';
+            console.log('Showing step', step);
+            
+            // Update debug info
+            document.getElementById('currentStep').textContent = step;
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.display = step > 1 ? 'inline-block' : 'none';
+            document.getElementById('nextBtn').style.display = step < 3 ? 'inline-block' : 'none';
+            document.getElementById('submitBtn').style.display = step === 3 ? 'inline-block' : 'none';
+            
+            // Generate review for step 3
+            if (step === 3) {
+                generateReview();
+            }
+        }
+
+        function nextStep() {
+            console.log('Next clicked, current step:', currentStepNum);
+            
+            if (validate()) {
+                if (currentStepNum < 3) {
+                    currentStepNum++;
+                    showStep(currentStepNum);
+                }
+            }
+        }
+
+        function prevStep() {
+            console.log('Previous clicked, current step:', currentStepNum);
+            
+            if (currentStepNum > 1) {
+                currentStepNum--;
+                showStep(currentStepNum);
+            }
+        }
+
+        function validate() {
+            if (currentStepNum === 1 && !selectedTypeValue) {
+                alert('Please select a type');
+                return false;
+            }
+            if (currentStepNum === 2) {
+                const title = document.getElementById('title').value;
+                if (!title.trim()) {
+                    alert('Please enter a title');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function generateReview() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+            const location = document.getElementById('location').value;
+            const date = document.getElementById('date').value;
+            
+            document.getElementById('review').innerHTML = `
+                <p><strong>Type:</strong> ${selectedTypeValue}</p>
+                <p><strong>Title:</strong> ${title}</p>
+                <p><strong>Description:</strong> ${description}</p>
+                <p><strong>Category:</strong> ${category}</p>
+                <p><strong>Location:</strong> ${location}</p>
+                <p><strong>Date:</strong> ${date}</p>
+            `;
+        }
+
+        function submit() {
+            alert('Form would be submitted now!');
+        }
+
+        // Load categories and locations
+        async function loadData() {
+            console.log('Loading categories and locations...');
+            
+            try {
+                // Load categories
+                const catResponse = await fetch('/api/items/meta/categories');
+                const catResult = await catResponse.json();
+                
+                if (catResult.success) {
+                    const categorySelect = document.getElementById('category');
+                    categorySelect.innerHTML = '<option value="">Select Category</option>';
+                    
+                    catResult.categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.name;
+                        option.textContent = cat.name;
+                        categorySelect.appendChild(option);
+                    });
+                    
+                    console.log('Categories loaded:', catResult.categories.length);
+                }
+                
+                // Load locations
+                const locResponse = await fetch('/api/items/meta/locations');
+                const locResult = await locResponse.json();
+                
+                if (locResult.success) {
+                    const locationSelect = document.getElementById('location');
+                    locationSelect.innerHTML = '<option value="">Select Location</option>';
+                    
+                    locResult.locations.forEach(loc => {
+                        const option = document.createElement('option');
+                        option.value = loc.name;
+                        option.textContent = loc.name;
+                        locationSelect.appendChild(option);
+                    });
+                    
+                    console.log('Locations loaded:', locResult.locations.length);
+                }
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Test function to check visibility
+        function checkStepVisibility() {
+            console.log('=== CHECKING STEP VISIBILITY ===');
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById('step' + i);
+                const hasActive = step.classList.contains('active');
+                const display = getComputedStyle(step).display;
+                const visible = display !== 'none';
+                console.log(`Step ${i}: hasActive=${hasActive}, display=${display}, visible=${visible}`);
+            }
+        }
+
+        // Check visibility after 2 seconds
+        setTimeout(checkStepVisibility, 2000);
+    </script>
+</body>
+</html>

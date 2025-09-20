@@ -20,13 +20,13 @@
                     <li><a href="/dashboard.html" class="nav-link" style="color: var(--primary-color); font-weight: 600;">
                         <i class="fas fa-home"></i> Dashboard
                     </a></li>
-                    <li><a href="#" class="nav-link">
+                    <li><a href="/browse-items.html" class="nav-link">
                         <i class="fas fa-search"></i> Browse
                     </a></li>
-                    <li><a href="#" class="nav-link">
+                    <li><a href="/report-item.html" class="nav-link">
                         <i class="fas fa-plus"></i> Report Item
                     </a></li>
-                    <li><a href="#" class="nav-link">
+                    <li><a href="/my-items.html" class="nav-link">
                         <i class="fas fa-list"></i> My Items
                     </a></li>
                     <li>
@@ -55,14 +55,14 @@
                         <p class="dashboard-subtitle">Here's what's happening with your lost and found items</p>
                     </div>
                     <div style="display: flex; gap: 1rem;">
-                        <button class="btn btn-primary">
+                        <a href="/report-item.html" class="btn btn-primary">
                             <i class="fas fa-plus"></i>
                             Report Item
-                        </button>
-                        <button class="btn btn-outline">
+                        </a>
+                        <a href="/browse-items.html" class="btn btn-outline">
                             <i class="fas fa-search"></i>
                             Browse Items
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                             <i class="fas fa-exclamation-triangle" style="color: white; font-size: 1.2rem;"></i>
                         </div>
                     </div>
-                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                    <div class="stat-number" id="lostCount" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
                 </div>
 
                 <div class="card slide-up">
@@ -86,7 +86,7 @@
                             <i class="fas fa-hand-holding" style="color: white; font-size: 1.2rem;"></i>
                         </div>
                     </div>
-                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                    <div class="stat-number" id="foundCount" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
                 </div>
 
                 <div class="card slide-up">
@@ -96,7 +96,7 @@
                             <i class="fas fa-clock" style="color: white; font-size: 1.2rem;"></i>
                         </div>
                     </div>
-                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                    <div class="stat-number" id="pendingClaims" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
                 </div>
 
                 <div class="card slide-up">
@@ -106,7 +106,7 @@
                             <i class="fas fa-check-circle" style="color: white; font-size: 1.2rem;"></i>
                         </div>
                     </div>
-                    <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                    <div class="stat-number" id="returnedCount" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
                 </div>
             </div>
 
@@ -114,7 +114,7 @@
             <div class="card" style="margin-bottom: 2rem;">
                 <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--dark-color);">Quick Actions</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                    <a href="/report-item.html" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
                         <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--error-color), #fca5a5); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
@@ -122,7 +122,7 @@
                         <p style="font-size: 0.85rem; color: var(--gray-medium);">Lost something? Let the community help you find it</p>
                     </a>
 
-                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                    <a href="/report-item.html" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
                         <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--success-color), #6ee7b7); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
                             <i class="fas fa-hand-holding"></i>
                         </div>
@@ -130,7 +130,7 @@
                         <p style="font-size: 0.85rem; color: var(--gray-medium);">Found something? Help return it to its owner</p>
                     </a>
 
-                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                    <a href="/browse-items.html" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
                         <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
                             <i class="fas fa-search"></i>
                         </div>
@@ -138,7 +138,7 @@
                         <p style="font-size: 0.85rem; color: var(--gray-medium);">Search through lost and found items</p>
                     </a>
 
-                    <a href="#" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
+                    <a href="/my-items.html" style="background: var(--gray-light); border-radius: 12px; padding: 1.5rem; text-align: center; text-decoration: none; color: var(--dark-color); transition: all 0.3s ease; border: 2px solid transparent;">
                         <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning-color), #fcd34d); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
                             <i class="fas fa-list-ul"></i>
                         </div>
@@ -151,10 +151,12 @@
             <!-- Recent Activity -->
             <div class="card">
                 <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--dark-color);">Recent Activity</h2>
-                <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-medium);">
-                    <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <p style="margin-bottom: 0.5rem;">No recent activity</p>
-                    <p style="font-size: 0.85rem;">Start by reporting a lost or found item to see your activity here</p>
+                <div id="recentActivity">
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-medium);">
+                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p style="margin-bottom: 0.5rem;">No recent activity</p>
+                        <p style="font-size: 0.85rem;">Start by reporting a lost or found item to see your activity here</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -163,25 +165,136 @@
     <script src="/js/main.js"></script>
     <script>
         // Add hover effects to action cards
-        document.querySelectorAll('a[href="#"]').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.background = 'white';
-                this.style.borderColor = 'var(--primary-color)';
-                this.style.transform = 'translateY(-3px)';
-                this.style.boxShadow = 'var(--shadow)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.background = 'var(--gray-light)';
-                this.style.borderColor = 'transparent';
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            });
+        document.querySelectorAll('a[href*=".html"]').forEach(card => {
+            if (card.style.background) {
+                card.addEventListener('mouseenter', function() {
+                    this.style.background = 'white';
+                    this.style.borderColor = 'var(--primary-color)';
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = 'var(--shadow)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.background = 'var(--gray-light)';
+                    this.style.borderColor = 'transparent';
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            }
         });
 
         // Add animation delays for stats cards
         document.querySelectorAll('.slide-up').forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Load user statistics
+        async function loadUserStats() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/items/user/my-items');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const items = result.items;
+                    
+                    // Calculate statistics
+                    const lostItems = items.filter(item => item.type === 'lost').length;
+                    const foundItems = items.filter(item => item.type === 'found').length;
+                    const returnedItems = items.filter(item => item.status === 'returned').length;
+                    const totalPendingClaims = items.reduce((sum, item) => sum + (item.pending_claims || 0), 0);
+                    
+                    // Update UI
+                    document.getElementById('lostCount').textContent = lostItems;
+                    document.getElementById('foundCount').textContent = foundItems;
+                    document.getElementById('returnedCount').textContent = returnedItems;
+                    document.getElementById('pendingClaims').textContent = totalPendingClaims;
+                    
+                    // Load recent activity
+                    loadRecentActivity(items);
+                }
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+            }
+        }
+
+        // Load recent activity
+        function loadRecentActivity(items) {
+            const recentItems = items
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 5);
+            
+            const activityContainer = document.getElementById('recentActivity');
+            
+            if (recentItems.length === 0) {
+                return; // Keep the default "no activity" message
+            }
+            
+            const activityHTML = recentItems.map(item => {
+                const date = new Date(item.created_at).toLocaleDateString();
+                const statusColor = item.status === 'active' ? 'var(--success-color)' : 
+                                   item.status === 'claimed' ? 'var(--warning-color)' : 
+                                   'var(--primary-color)';
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--gray-border); cursor: pointer;" onclick="window.location.href='/my-items.html'">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; background: ${item.type === 'lost' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)'}; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-${item.type === 'lost' ? 'exclamation-triangle' : 'hand-holding'}" style="color: ${item.type === 'lost' ? 'var(--error-color)' : 'var(--success-color)'};"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--dark-color);">${item.title}</div>
+                                <div style="font-size: 0.85rem; color: var(--gray-medium);">${item.type.charAt(0).toUpperCase() + item.type.slice(1)} item reported on ${date}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: rgba(102, 126, 234, 0.1); color: ${statusColor};">
+                                ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                            </span>
+                            <i class="fas fa-chevron-right" style="color: var(--gray-medium);"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            activityContainer.innerHTML = activityHTML;
+        }
+
+        // Helper function for authenticated requests
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+            
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            return response;
+        }
+
+        // Load stats when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add a small delay to ensure other scripts have loaded
+            setTimeout(() => {
+                loadUserStats();
+            }, 1000);
         });
     </script>
 </body>

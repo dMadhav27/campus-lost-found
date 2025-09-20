@@ -3,16 +3,25 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 // Import configurations and routes
 const { initializeDatabase, testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
+const itemRoutes = require('./routes/items');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security middleware
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('📁 Created uploads directory');
+}
+
+// Security middleware - Updated CSP to allow inline scripts
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -20,6 +29,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrcAttr: ["'unsafe-inline'"], // This fixes the inline event handler issue
             imgSrc: ["'self'", "data:", "blob:"],
         },
     },
@@ -52,6 +62,7 @@ app.use('/views', express.static('views'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/items', itemRoutes);
 
 // Serve HTML files
 app.get('/', (req, res) => {
@@ -69,6 +80,26 @@ app.get('/signup.html', (req, res) => {
 app.get('/dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'dashboard.html'));
 });
+
+app.get('/report-item.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'report-item.html'));
+});
+
+app.get('/browse-items.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'browse-items.html'));
+});
+
+app.get('/my-items.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'my-items.html'));
+});
+
+app.get('/item-details.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'item-details.html'));
+});
+
+app.get('/test-report.html', (req, res) => {
+       res.sendFile(path.join(__dirname, 'views', 'test-report.html'));
+   });
 
 // API health check
 app.get('/api/health', (req, res) => {
@@ -141,9 +172,13 @@ async function startServer() {
             console.log(`   🔐 Login: http://localhost:${PORT}/login.html`);
             console.log(`   📝 Signup: http://localhost:${PORT}/signup.html`);
             console.log(`   📊 Dashboard: http://localhost:${PORT}/dashboard.html`);
+            console.log(`   📋 Report Item: http://localhost:${PORT}/report-item.html`);
+            console.log(`   🔍 Browse Items: http://localhost:${PORT}/browse-items.html`);
+            console.log(`   📂 My Items: http://localhost:${PORT}/my-items.html`);
             console.log('\n🔧 API Endpoints:');
             console.log(`   ❤️  Health Check: http://localhost:${PORT}/api/health`);
             console.log(`   🔑 Auth Test: http://localhost:${PORT}/api/auth/test`);
+            console.log(`   📦 Items API: http://localhost:${PORT}/api/items`);
             console.log('═══════════════════════════════════════\n');
         });
 

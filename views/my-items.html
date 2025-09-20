@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Items - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-color: #1f2937;
+            --gray-light: #f8fafc;
+            --gray-medium: #64748b;
+            --gray-border: #e2e8f0;
+            --white: #ffffff;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-light);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--gray-medium);
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .item-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .item-type {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .item-type.lost {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .item-type.found {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .verification-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-verified {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-unverified {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .item-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .item-description {
+            color: var(--gray-medium);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .item-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray-medium);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-border);
+            color: var(--gray-medium);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-medium);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-medium);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--gray-medium);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .main-container {
+                padding: 0 1rem;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .item-details {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/dashboard.html" class="logo">
+                <i class="fas fa-university"></i> Campus L&F
+            </a>
+            <ul class="nav-links">
+                <li><a href="/dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/browse-items.html"><i class="fas fa-search"></i> Browse</a></li>
+                <li><a href="/report-item.html"><i class="fas fa-plus"></i> Report Item</a></li>
+                <li><a href="/my-items.html" class="active"><i class="fas fa-box"></i> My Items</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">My Items</h1>
+            <p class="page-subtitle">Manage your reported lost and found items</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalItems">0</div>
+                <div class="stat-label">Total Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lostItems">0</div>
+                <div class="stat-label">Lost Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="foundItems">0</div>
+                <div class="stat-label">Found Items</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="verifiedItems">0</div>
+                <div class="stat-label">Verified Items</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('reported')">
+                <i class="fas fa-box"></i> My Reports
+            </button>
+            <button class="tab" onclick="switchTab('claims')">
+                <i class="fas fa-hand-paper"></i> My Claims
+            </button>
+        </div>
+
+        <!-- Reported Items Tab -->
+        <div class="tab-content active" id="reported-content">
+            <div id="loading-reported" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading your items...
+            </div>
+            <div id="reported-items" class="items-grid" style="display: none;"></div>
+            <div id="empty-reported" class="empty-state" style="display: none;">
+                <i class="fas fa-box-open"></i>
+                <h3>No Items Reported</h3>
+                <p>You haven't reported any lost or found items yet.</p>
+                <a href="/report-item.html" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Report Item
+                </a>
+            </div>
+        </div>
+
+        <!-- Claims Tab -->
+        <div class="tab-content" id="claims-content">
+            <div id="loading-claims" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading your claims...
+            </div>
+            <div id="claims-items" class="items-grid" style="display: none;"></div>
+            <div id="empty-claims" class="empty-state" style="display: none;">
+                <i class="fas fa-hand-paper"></i>
+                <h3>No Claims Submitted</h3>
+                <p>You haven't claimed any items yet.</p>
+                <a href="/browse-items.html" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-search"></i> Browse Items
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'reported';
+        let userItems = [];
+        let userClaims = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            await loadUserItems();
+            await loadUserClaims();
+        });
+
+        // Load user's reported items (ALL items - verified and unverified)
+        async function loadUserItems() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/items/my');
+                
+                if (response.ok) {
+                    userItems = await response.json();
+                    displayReportedItems();
+                    updateStats();
+                } else {
+                    console.error('Failed to load items');
+                    document.getElementById('loading-reported').innerHTML = 
+                        '<i class="fas fa-exclamation-triangle"></i> Failed to load items';
+                }
+            } catch (error) {
+                console.error('Error loading items:', error);
+                document.getElementById('loading-reported').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle"></i> Error loading items';
+            }
+        }
+
+        // Load user's claims
+        async function loadUserClaims() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/claims/my');
+                
+                if (response.ok) {
+                    userClaims = await response.json();
+                    displayClaims();
+                } else {
+                    console.error('Failed to load claims');
+                    document.getElementById('loading-claims').innerHTML = 
+                        '<i class="fas fa-exclamation-triangle"></i> Failed to load claims';
+                }
+            } catch (error) {
+                console.error('Error loading claims:', error);
+                document.getElementById('loading-claims').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle"></i> Error loading claims';
+            }
+        }
+
+        // Display reported items (ALL items regardless of verification)
+        function displayReportedItems() {
+            const container = document.getElementById('reported-items');
+            const loading = document.getElementById('loading-reported');
+            const empty = document.getElementById('empty-reported');
+
+            loading.style.display = 'none';
+
+            if (userItems.length === 0) {
+                empty.style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            container.style.display = 'grid';
+            container.innerHTML = '';
+
+            userItems.forEach(item => {
+                const itemCard = createItemCard(item, 'reported');
+                container.appendChild(itemCard);
+            });
+        }
+
+        // Display claims
+        function displayClaims() {
+            const container = document.getElementById('claims-items');
+            const loading = document.getElementById('loading-claims');
+            const empty = document.getElementById('empty-claims');
+
+            loading.style.display = 'none';
+
+            if (userClaims.length === 0) {
+                empty.style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            container.style.display = 'grid';
+            container.innerHTML = '';
+
+            userClaims.forEach(claim => {
+                const claimCard = createClaimCard(claim);
+                container.appendChild(claimCard);
+            });
+        }
+
+        // Create item card
+        function createItemCard(item, type) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+
+            // Get verification status display
+            const getVerificationStatus = (isVerified) => {
+                if (isVerified === true || isVerified === 1) {
+                    return '<span class="verification-status status-verified"><i class="fas fa-check-circle"></i> Verified</span>';
+                } else {
+                    return '<span class="verification-status status-pending"><i class="fas fa-clock"></i> Pending Review</span>';
+                }
+            };
+
+            // Get status color
+            const getStatusClass = (status) => {
+                switch(status) {
+                    case 'active': return 'status-verified';
+                    case 'claimed': return 'status-pending';
+                    case 'returned': return 'status-verified';
+                    case 'closed': return 'status-unverified';
+                    default: return 'status-pending';
+                }
+            };
+
+            // Format date
+            const formatDate = (dateString) => {
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            };
+
+            card.innerHTML = `
+                <div class="item-header">
+                    <span class="item-type ${item.type}">${item.type.toUpperCase()}</span>
+                    ${getVerificationStatus(item.is_verified)}
+                </div>
+                <h3 class="item-title">${item.title}</h3>
+                <p class="item-description">${item.description}</p>
+                <div class="item-details">
+                    <div class="item-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${item.location}</span>
+                    </div>
+                    <div class="item-detail">
+                        <i class="fas fa-calendar"></i>
+                        <span>${formatDate(item.date_lost_found)}</span>
+                    </div>
+                    <div class="item-detail">
+                        <i class="fas fa-tag"></i>
+                        <span>${item.category}</span>
+                    </div>
+                    <div class="item-detail">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="verification-status ${getStatusClass(item.status)}">${item.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                <div class="item-actions">
+                    <a href="/item-details.html?id=${item.item_id}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <button onclick="editItem(${item.item_id})" class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Create claim card
+        function createClaimCard(claim) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+
+            const getClaimStatusClass = (status) => {
+                switch(status) {
+                    case 'approved': return 'status-verified';
+                    case 'pending': return 'status-pending';
+                    case 'rejected': return 'status-unverified';
+                    default: return 'status-pending';
+                }
+            };
+
+            const formatDate = (dateString) => {
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            };
+
+            card.innerHTML = `
+                <div class="item-header">
+                    <span class="item-type found">CLAIMED</span>
+                    <span class="verification-status ${getClaimStatusClass(claim.status)}">
+                        ${claim.status.toUpperCase()}
+                    </span>
+                </div>
+                <h3 class="item-title">${claim.item_title || 'Item Claim'}</h3>
+                <p class="item-description">Claim submitted for verification</p>
+                <div class="item-details">
+                    <div class="item-detail">
+                        <i class="fas fa-calendar"></i>
+                        <span>Claimed: ${formatDate(claim.created_at)}</span>
+                    </div>
+                    <div class="item-detail">
+                        <i class="fas fa-info-circle"></i>
+                        <span>${claim.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                <div class="item-actions">
+                    <a href="/item-details.html?id=${claim.item_id}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> View Item
+                    </a>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalItems = userItems.length;
+            const lostItems = userItems.filter(item => item.type === 'lost').length;
+            const foundItems = userItems.filter(item => item.type === 'found').length;
+            const verifiedItems = userItems.filter(item => item.is_verified === true || item.is_verified === 1).length;
+
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('lostItems').textContent = lostItems;
+            document.getElementById('foundItems').textContent = foundItems;
+            document.getElementById('verifiedItems').textContent = verifiedItems;
+        }
+
+        // Switch tabs
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tab + '-content').classList.add('active');
+
+            currentTab = tab;
+        }
+
+        // Edit item function
+        function editItem(itemId) {
+            window.location.href = `/edit-item.html?id=${itemId}`;
+        }
+
+        // Helper function for authenticated requests
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userInfo');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Items - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .search-fields {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-border);
+        }
+        
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--gray-medium);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .item-image {
+            width: 100%;
+            height: 200px;
+            background: var(--gray-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .item-image .no-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray-medium);
+            font-size: 3rem;
+        }
+        
+        .item-type-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .item-type-lost {
+            background: var(--error-color);
+            color: white;
+        }
+        
+        .item-type-found {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .item-content {
+            padding: 1.5rem;
+        }
+        
+        .item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        .item-description {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: var(--gray-medium);
+        }
+        
+        .item-location {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .item-date {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-border);
+        }
+        
+        .item-reporter {
+            font-size: 0.85rem;
+            color: var(--gray-medium);
+        }
+        
+        .item-claims {
+            font-size: 0.75rem;
+            color: var(--warning-color);
+            background: rgba(245, 158, 11, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
+        
+        .reward-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gray-border);
+            background: white;
+            color: var(--gray-medium);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination .current-page {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .no-items {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-medium);
+        }
+        
+        .no-items i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-medium);
+        }
+        
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-border);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .search-fields {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-search-location"></i>
+                    Campus Lost & Found
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html" class="nav-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="/browse-items.html" class="nav-link" style="color: var(--primary-color); font-weight: 600;">
+                        <i class="fas fa-search"></i> Browse
+                    </a></li>
+                    <li><a href="/report-item.html" class="nav-link">
+                        <i class="fas fa-plus"></i> Report Item
+                    </a></li>
+                    <li><a href="/my-items.html" class="nav-link">
+                        <i class="fas fa-list"></i> My Items
+                    </a></li>
+                    <li>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="user-name">Loading...</span>
+                            <div class="user-avatar">JD</div>
+                            <button class="btn btn-outline" id="logoutBtn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="container">
+            <div class="dashboard-header" style="text-align: center; margin-bottom: 2rem;">
+                <h1 class="dashboard-title">Browse Items</h1>
+                <p class="dashboard-subtitle">Find lost items or browse found items waiting for their owners</p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-section">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-type="">All Items</button>
+                    <button class="filter-tab" data-type="lost">Lost Items</button>
+                    <button class="filter-tab" data-type="found">Found Items</button>
+                </div>
+
+                <form class="search-form" id="searchForm">
+                    <div class="search-fields">
+                        <div class="form-group">
+                            <input type="text" id="searchQuery" name="search" class="form-input" 
+                                   placeholder="Search items by title or description...">
+                        </div>
+                        <div class="form-group">
+                            <select id="categoryFilter" name="category" class="form-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select id="locationFilter" name="location" class="form-select">
+                                <option value="">All Locations</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select id="sortBy" name="sortBy" class="form-select">
+                                <option value="created_at">Newest First</option>
+                                <option value="date_lost_found">Date Lost/Found</option>
+                                <option value="title">Title A-Z</option>
+                                <option value="view_count">Most Viewed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            <!-- Items Grid -->
+            <div id="itemsContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading items...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <!-- Pagination will be generated by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentFilters = {
+            type: '',
+            search: '',
+            category: '',
+            location: '',
+            sortBy: 'created_at',
+            page: 1
+        };
+        
+        let categories = [];
+        let locations = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCategories();
+            await loadLocations();
+            setupEventListeners();
+            await loadItems();
+        });
+
+        // Load categories and locations
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/items/meta/categories');
+                const result = await response.json();
+                if (result.success) {
+                    categories = result.categories;
+                    const select = document.getElementById('categoryFilter');
+                    result.categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.name;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadLocations() {
+            try {
+                const response = await fetch('/api/items/meta/locations');
+                const result = await response.json();
+                if (result.success) {
+                    locations = result.locations;
+                    const select = document.getElementById('locationFilter');
+                    result.locations.forEach(loc => {
+                        const option = document.createElement('option');
+                        option.value = loc.name;
+                        option.textContent = loc.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading locations:', error);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentFilters.type = tab.dataset.type;
+                    currentFilters.page = 1;
+                    loadItems();
+                });
+            });
+
+            // Search form
+            document.getElementById('searchForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                currentFilters.search = document.getElementById('searchQuery').value;
+                currentFilters.category = document.getElementById('categoryFilter').value;
+                currentFilters.location = document.getElementById('locationFilter').value;
+                currentFilters.sortBy = document.getElementById('sortBy').value;
+                currentFilters.page = 1;
+                loadItems();
+            });
+
+            // Real-time search
+            let searchTimeout;
+            document.getElementById('searchQuery').addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentFilters.search = e.target.value;
+                    currentFilters.page = 1;
+                    loadItems();
+                }, 500);
+            });
+        }
+
+        // Load items from API
+        async function loadItems() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading items...</p>
+                </div>
+            `;
+
+            try {
+                const params = new URLSearchParams();
+                Object.keys(currentFilters).forEach(key => {
+                    if (currentFilters[key]) {
+                        params.append(key, currentFilters[key]);
+                    }
+                });
+
+                const response = await fetch(`/api/items?${params.toString()}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayItems(result.items);
+                    displayPagination(result.pagination);
+                } else {
+                    throw new Error(result.error || 'Failed to load items');
+                }
+            } catch (error) {
+                console.error('Error loading items:', error);
+                container.innerHTML = `
+                    <div class="no-items">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Items</h3>
+                        <p>Failed to load items. Please try again later.</p>
+                        <button class="btn btn-primary" onclick="loadItems()">
+                            <i class="fas fa-redo"></i>
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Display items in grid
+        function displayItems(items) {
+            const container = document.getElementById('itemsContainer');
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="no-items">
+                        <i class="fas fa-search"></i>
+                        <h3>No Items Found</h3>
+                        <p>Try adjusting your search criteria or check back later for new items.</p>
+                        <a href="/report-item.html" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Report an Item
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            const itemsHTML = items.map(item => createItemCard(item)).join('');
+            container.innerHTML = `<div class="items-grid">${itemsHTML}</div>`;
+        }
+
+        // Create individual item card
+        function createItemCard(item) {
+            const images = item.images || [];
+            const hasImage = images.length > 0;
+            const imageUrl = hasImage ? images[0] : null;
+            
+            const dateFormatted = new Date(item.date_lost_found).toLocaleDateString();
+            const createdFormatted = new Date(item.created_at).toLocaleDateString();
+            
+            return `
+                <div class="item-card" onclick="viewItemDetails(${item.item_id})">
+                    <div class="item-image">
+                        ${hasImage ? 
+                            `<img src="${imageUrl}" alt="${item.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                             <div class="no-image" style="display: none;">
+                                <i class="fas fa-image"></i>
+                             </div>` :
+                            `<div class="no-image">
+                                <i class="fas fa-image"></i>
+                             </div>`
+                        }
+                        <div class="item-type-badge item-type-${item.type}">
+                            ${item.type}
+                        </div>
+                        ${item.reward_amount > 0 ? 
+                            `<div class="reward-badge">
+                                ${parseFloat(item.reward_amount).toFixed(2)} Reward
+                             </div>` : ''
+                        }
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">${item.title}</h3>
+                        <p class="item-description">${item.description}</p>
+                        <div class="item-meta">
+                            <div class="item-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                ${item.location_name || 'Unknown'}
+                            </div>
+                            <div class="item-date">
+                                <i class="fas fa-calendar"></i>
+                                ${dateFormatted}
+                            </div>
+                        </div>
+                        <div class="item-footer">
+                            <div class="item-reporter">
+                                Reported ${createdFormatted}
+                            </div>
+                            ${item.pending_claims > 0 ? 
+                                `<div class="item-claims">
+                                    ${item.pending_claims} claim(s)
+                                 </div>` : ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display pagination
+        function displayPagination(pagination) {
+            const paginationContainer = document.getElementById('pagination');
+            
+            if (pagination.totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            paginationContainer.style.display = 'flex';
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <button onclick="changePage(${pagination.currentPage - 1})" 
+                        ${!pagination.hasPrevPage ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+            
+            // Page numbers
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += `<button onclick="changePage(1)">1</button>`;
+                if (startPage > 2) {
+                    paginationHTML += `<span style="padding: 0.5rem;">...</span>`;
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button onclick="changePage(${i})" 
+                            ${i === pagination.currentPage ? 'class="current-page"' : ''}>
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            if (endPage < pagination.totalPages) {
+                if (endPage < pagination.totalPages - 1) {
+                    paginationHTML += `<span style="padding: 0.5rem;">...</span>`;
+                }
+                paginationHTML += `<button onclick="changePage(${pagination.totalPages})">${pagination.totalPages}</button>`;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <button onclick="changePage(${pagination.currentPage + 1})" 
+                        ${!pagination.hasNextPage ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            paginationContainer.innerHTML = paginationHTML;
+        }
+
+        // Change page
+        function changePage(page) {
+            currentFilters.page = page;
+            loadItems();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // View item details
+        function viewItemDetails(itemId) {
+            window.location.href = `/item-details.html?id=${itemId}`;
+        }
+    </script>
+</body>
+</html>

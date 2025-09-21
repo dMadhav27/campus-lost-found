@@ -433,8 +433,8 @@
                 <i class="fas fa-box"></i> My Reports
             </button>
             <button class="tab" onclick="switchTab('claims')">
-                <i class="fas fa-hand-paper"></i> My Claims
-            </button>
+    <i class="fas fa-hand-paper"></i> My Claims
+</button>
         </div>
 
         <!-- Reported Items Tab -->
@@ -461,29 +461,21 @@
             </div>
         </div>
 
-        <!-- Claims Tab -->
-        <div class="tab-content" id="claims-content">
-            <div id="loading-claims" class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Loading your claims...
-            </div>
-            <div id="claims-items" class="items-grid" style="display: none;"></div>
-            <div id="empty-claims" class="empty-state" style="display: none;">
-                <i class="fas fa-hand-paper"></i>
-                <h3>No Claims Submitted</h3>
-                <p>You haven't claimed any items yet.</p>
-                <a href="/browse-items.html" class="btn btn-primary" style="margin-top: 1rem;">
-                    <i class="fas fa-search"></i> Browse Items
-                </a>
-            </div>
-            <div id="error-claims" class="error-state" style="display: none;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Error Loading Claims</h3>
-                <p>Failed to load your claims. Please try again.</p>
-                <button onclick="loadUserClaims()" class="btn btn-primary" style="margin-top: 1rem;">
-                    <i class="fas fa-redo"></i> Retry
-                </button>
-            </div>
-        </div>
+        <!-- Add this tab content -->
+<div class="tab-content" id="claims-content">
+    <div id="loading-claims" class="loading">
+        <i class="fas fa-spinner fa-spin"></i> Loading your claims...
+    </div>
+    <div id="claims-items" class="items-grid" style="display: none;"></div>
+    <div id="empty-claims" class="empty-state" style="display: none;">
+        <i class="fas fa-hand-paper"></i>
+        <h3>No Claims Submitted</h3>
+        <p>You haven't claimed any items yet.</p>
+        <a href="/browse-items.html" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-search"></i> Browse Items
+        </a>
+    </div>
+</div>
     </div>
 
     <!-- Delete Confirmation Modal -->

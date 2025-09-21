@@ -10,6 +10,7 @@ require('dotenv').config();
 const { initializeDatabase, testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/items');
+const claimRoutes = require('./routes/claims');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -70,6 +71,7 @@ app.use('/views', express.static('views'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
+app.use('/api/claims', claimRoutes);
 
 // Serve HTML files
 app.get('/', (req, res) => {
@@ -102,6 +104,10 @@ app.get('/my-items.html', (req, res) => {
 
 app.get('/item-details.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'item-details.html'));
+});
+
+app.get('/claim-item.html', (req, res) => {  // ADD THIS ENTIRE ROUTE
+    res.sendFile(path.join(__dirname, 'views', 'claim-item.html'));
 });
 
 app.get('/test-report.html', (req, res) => {

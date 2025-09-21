@@ -74,20 +74,20 @@ async function initializeClaimsDatabase() {
             console.log('✅ Added total_claims_count column');
         }
 
-        // Create triggers for claim count management
+        // Create triggers for claim count management using query() instead of execute()
         console.log('🔧 Setting up database triggers...');
         
         // Drop existing triggers if they exist
         try {
-            await connection.execute('DROP TRIGGER IF EXISTS update_claim_counts_after_insert');
-            await connection.execute('DROP TRIGGER IF EXISTS update_claim_counts_after_update');
-            await connection.execute('DROP TRIGGER IF EXISTS update_claim_counts_after_delete');
+            await connection.query('DROP TRIGGER IF EXISTS update_claim_counts_after_insert');
+            await connection.query('DROP TRIGGER IF EXISTS update_claim_counts_after_update');
+            await connection.query('DROP TRIGGER IF EXISTS update_claim_counts_after_delete');
         } catch (error) {
             // Triggers might not exist, ignore errors
         }
 
-        // Create new triggers
-        await connection.execute(`
+        // Create new triggers using query() method
+        await connection.query(`
             CREATE TRIGGER update_claim_counts_after_insert
             AFTER INSERT ON claims
             FOR EACH ROW
@@ -100,7 +100,7 @@ async function initializeClaimsDatabase() {
             END
         `);
 
-        await connection.execute(`
+        await connection.query(`
             CREATE TRIGGER update_claim_counts_after_update
             AFTER UPDATE ON claims
             FOR EACH ROW
@@ -121,7 +121,7 @@ async function initializeClaimsDatabase() {
             END
         `);
 
-        await connection.execute(`
+        await connection.query(`
             CREATE TRIGGER update_claim_counts_after_delete
             AFTER DELETE ON claims
             FOR EACH ROW
@@ -156,6 +156,42 @@ async function initializeClaimsDatabase() {
                 )
         `);
         console.log('✅ Updated existing claim counts');
+
+        // Test the triggers by inserting a test claim and then deleting it
+        console.log('🧪 Testing triggers...');
+        
+        // Get a test item and user
+        const [testItems] = await connection.execute('SELECT item_id FROM items LIMIT 1');
+        const [testUsers] = await connection.execute('SELECT user_id FROM users LIMIT 2');
+        
+        if (testItems.length > 0 && testUsers.length >= 2) {
+            const testItemId = testItems[0].item_id;
+            const testClaimantId = testUsers[0].user_id;
+            const testOwnerId = testUsers[1].user_id;
+            
+            // Insert test claim
+            const [testClaim] = await connection.execute(`
+                INSERT INTO claims (item_id, claimant_id, item_owner_id, verification_answers)
+                VALUES (?, ?, ?, ?)
+            `, [testItemId, testClaimantId, testOwnerId, JSON.stringify([])]);
+            
+            // Check if counts updated
+            const [itemCounts] = await connection.execute(
+                'SELECT total_claims_count, pending_claims_count FROM items WHERE item_id = ?',
+                [testItemId]
+            );
+            
+            if (itemCounts[0].total_claims_count > 0 && itemCounts[0].pending_claims_count > 0) {
+                console.log('✅ Triggers working correctly');
+            } else {
+                console.log('⚠️  Triggers may not be working properly');
+            }
+            
+            // Clean up test claim
+            await connection.execute('DELETE FROM claims WHERE claim_id = ?', [testClaim.insertId]);
+        } else {
+            console.log('⚠️  No test data available, skipping trigger test');
+        }
 
         console.log('\n🎉 Claims database initialization completed successfully!');
         console.log('\n📋 What was added:');

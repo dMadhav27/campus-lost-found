@@ -39,6 +39,38 @@
             background: rgba(102, 126, 234, 0.1);
         }
 
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .claim-button {
+            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .claim-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .claim-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .item-card {
             background: white;
             border-radius: 15px;
@@ -155,6 +187,14 @@
             background: var(--gray-light);
             border-radius: 10px;
             border: 2px dashed var(--gray-border);
+        }
+
+        .owner-only-section {
+            background: rgba(102, 126, 234, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
         }
 
         .edit-mode {
@@ -287,6 +327,28 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
+        .warning-note {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .warning-note h4 {
+            color: var(--warning-color);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .warning-note p {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
         @media (max-width: 768px) {
             .item-details-container {
                 padding: 0 1rem;
@@ -306,6 +368,16 @@
 
             .images-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .item-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
             }
         }
     </style>
@@ -352,13 +424,21 @@
             <div class="item-header">
                 <button class="back-btn" onclick="goBack()">
                     <i class="fas fa-arrow-left"></i>
-                    Back to My Items
+                    <span id="backButtonText">Back to Browse</span>
                 </button>
-                <div id="editToggle" style="display: none;">
-                    <button class="btn btn-primary" onclick="toggleEditMode()">
-                        <i class="fas fa-edit"></i>
-                        <span id="editButtonText">Edit Item</span>
-                    </button>
+                <div class="action-buttons">
+                    <div id="claimSection" style="display: none;">
+                        <a href="#" class="claim-button" id="claimButton">
+                            <i class="fas fa-hand-holding"></i>
+                            I Have This Item
+                        </a>
+                    </div>
+                    <div id="editToggle" style="display: none;">
+                        <button class="btn btn-primary" onclick="toggleEditMode()">
+                            <i class="fas fa-edit"></i>
+                            <span id="editButtonText">Edit Item</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -384,6 +464,18 @@
 
             <!-- Item Details -->
             <div id="itemContainer" style="display: none;">
+                <!-- Warning for claiming items -->
+                <div id="claimWarning" class="warning-note" style="display: none;">
+                    <h4>
+                        <i class="fas fa-info-circle"></i>
+                        Ready to Claim This Item?
+                    </h4>
+                    <p>
+                        You'll need to answer security questions to verify you have this item. 
+                        Only claim items you genuinely have - false claims may result in account suspension.
+                    </p>
+                </div>
+
                 <!-- View Mode -->
                 <div class="item-card view-mode" id="viewMode">
                     <div id="itemTypeDisplay"></div>
@@ -405,7 +497,7 @@
                     </div>
                 </div>
 
-                <!-- Edit Mode -->
+                <!-- Edit Mode (only for owners) -->
                 <div class="item-card edit-mode" id="editMode">
                     <h2 style="margin-bottom: 1.5rem;">Edit Item Details</h2>
                     
@@ -464,6 +556,7 @@
         let currentItem = null;
         let isEditMode = false;
         let isOwner = false;
+        let currentUser = null;
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
@@ -476,6 +569,9 @@
                 return;
             }
 
+            // Get current user
+            currentUser = await getCurrentUser();
+            
             await loadItemDetails(itemId);
             await loadCategories();
 
@@ -484,13 +580,27 @@
             }
         });
 
+        // Get current user info
+        async function getCurrentUser() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/auth/me');
+                if (response && response.ok) {
+                    const result = await response.json();
+                    return result.user;
+                }
+            } catch (error) {
+                console.error('Error getting current user:', error);
+            }
+            return null;
+        }
+
         // Load item details
         async function loadItemDetails(itemId) {
             try {
                 // First try to get from user's items (to check ownership)
                 const userItemsResponse = await makeAuthenticatedRequest('/api/items/user/my-items');
                 
-                if (userItemsResponse.ok) {
+                if (userItemsResponse && userItemsResponse.ok) {
                     const userItemsResult = await userItemsResponse.json();
                     const userItem = userItemsResult.items?.find(item => item.item_id == itemId);
                     
@@ -499,6 +609,7 @@
                         currentItem = userItem;
                         isOwner = true;
                         document.getElementById('editToggle').style.display = 'block';
+                        document.getElementById('backButtonText').textContent = 'Back to My Items';
                         displayItemDetails(currentItem);
                         return;
                     }
@@ -512,6 +623,14 @@
                     if (publicResult.success) {
                         currentItem = publicResult.item;
                         isOwner = false;
+                        
+                        // Show claim section if not owner and item is lost/active
+                        if (currentItem && !isOwner && currentItem.status === 'active') {
+                            document.getElementById('claimSection').style.display = 'block';
+                            document.getElementById('claimWarning').style.display = 'block';
+                            document.getElementById('claimButton').href = `/claim-item.html?id=${itemId}`;
+                        }
+                        
                         displayItemDetails(currentItem);
                         return;
                     }
@@ -578,6 +697,17 @@
                         <p style="text-transform: capitalize;">${item.status || 'Active'}</p>
                     </div>
                 </div>
+                ${item.reward_amount > 0 ? `
+                <div class="detail-item">
+                    <div class="detail-icon" style="background: var(--accent-color);">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="detail-content">
+                        <h4>Reward</h4>
+                        <p>$${parseFloat(item.reward_amount).toFixed(2)}</p>
+                    </div>
+                </div>
+                ` : ''}
             `;
 
             // Images
@@ -806,8 +936,7 @@
             const token = localStorage.getItem('authToken');
             
             if (!token) {
-                window.location.href = '/login.html';
-                return;
+                return null;
             }
             
             const headers = {

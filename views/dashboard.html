@@ -7,6 +7,140 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .claim-notification {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .claim-notification:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .claim-notification-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .claim-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .claim-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .claim-info p {
+            margin: 0;
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+
+        .claim-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--success-color);
+            transition: all 0.3s ease;
+        }
+
+        .claim-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .claim-item-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .claim-item-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+        .claim-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .claim-status.approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .claim-status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .claim-meta {
+            color: var(--gray-medium);
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+
+        .claim-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .empty-claims {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-medium);
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -26,8 +160,9 @@
                     <li><a href="/report-item.html" class="nav-link">
                         <i class="fas fa-plus"></i> Report Item
                     </a></li>
-                    <li><a href="/my-items.html" class="nav-link">
+                    <li><a href="/my-items.html" class="nav-link" style="position: relative;">
                         <i class="fas fa-list"></i> My Items
+                        <span class="notification-badge" id="claimsNotification" style="display: none;">0</span>
                     </a></li>
                     <li>
                         <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
@@ -67,6 +202,27 @@
                 </div>
             </div>
 
+            <!-- Claims Notifications -->
+            <div id="claimsNotifications" style="display: none;">
+                <div class="claim-notification" onclick="window.location.href='/my-items.html'">
+                    <div class="claim-notification-header">
+                        <div class="claim-icon">
+                            <i class="fas fa-hand-holding"></i>
+                        </div>
+                        <div class="claim-info">
+                            <h4>New Claims for Your Items!</h4>
+                            <p>You have <span id="newClaimsCount">0</span> new claim(s) waiting for your review</p>
+                        </div>
+                        <div style="position: absolute; top: 1rem; right: 1rem;">
+                            <i class="fas fa-chevron-right" style="color: var(--success-color);"></i>
+                        </div>
+                    </div>
+                    <div id="recentClaimsList">
+                        <!-- Recent claims will be populated here -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Stats Cards -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                 <div class="card slide-up">
@@ -91,12 +247,12 @@
 
                 <div class="card slide-up">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span style="color: var(--gray-medium); font-size: 0.9rem; font-weight: 500;">Pending Claims</span>
+                        <span style="color: var(--gray-medium); font-size: 0.9rem; font-weight: 500;">Active Claims</span>
                         <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--warning-color), #fcd34d); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-clock" style="color: white; font-size: 1.2rem;"></i>
                         </div>
                     </div>
-                    <div class="stat-number" id="pendingClaims" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
+                    <div class="stat-number" id="activeClaims" style="font-size: 2rem; font-weight: 700; color: var(--dark-color);">0</div>
                 </div>
 
                 <div class="card slide-up">
@@ -142,7 +298,7 @@
                         <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--warning-color), #fcd34d); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
                             <i class="fas fa-list-ul"></i>
                         </div>
-                        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">My Items</h3>
+                        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">My Items & Claims</h3>
                         <p style="font-size: 0.85rem; color: var(--gray-medium);">View and manage your items and claims</p>
                     </a>
                 </div>
@@ -188,10 +344,24 @@
             card.style.animationDelay = `${index * 0.1}s`;
         });
 
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadUserStats(),
+                    loadClaimsNotifications()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
         // Load user statistics
         async function loadUserStats() {
             try {
                 const response = await makeAuthenticatedRequest('/api/items/user/my-items');
+                if (!response || !response.ok) return;
+                
                 const result = await response.json();
                 
                 if (result.success) {
@@ -201,13 +371,11 @@
                     const lostItems = items.filter(item => item.type === 'lost').length;
                     const foundItems = items.filter(item => item.type === 'found').length;
                     const returnedItems = items.filter(item => item.status === 'returned').length;
-                    const totalPendingClaims = items.reduce((sum, item) => sum + (item.pending_claims || 0), 0);
                     
                     // Update UI
                     document.getElementById('lostCount').textContent = lostItems;
                     document.getElementById('foundCount').textContent = foundItems;
                     document.getElementById('returnedCount').textContent = returnedItems;
-                    document.getElementById('pendingClaims').textContent = totalPendingClaims;
                     
                     // Load recent activity
                     loadRecentActivity(items);
@@ -215,6 +383,70 @@
             } catch (error) {
                 console.error('Error loading user stats:', error);
             }
+        }
+
+        // Load claims notifications
+        async function loadClaimsNotifications() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/claims/for-my-items');
+                if (!response || !response.ok) {
+                    // Claims endpoint might not exist yet
+                    document.getElementById('activeClaims').textContent = '0';
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const claims = result.claims || [];
+                    const newClaims = claims.filter(claim => 
+                        claim.claim_status === 'approved' || claim.claim_status === 'pending_verification'
+                    );
+                    
+                    // Update stats
+                    document.getElementById('activeClaims').textContent = newClaims.length;
+                    
+                    // Show notifications if there are new claims
+                    if (newClaims.length > 0) {
+                        displayClaimsNotifications(newClaims);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading claims:', error);
+                // Set to 0 if claims system not available
+                document.getElementById('activeClaims').textContent = '0';
+            }
+        }
+
+        // Display claims notifications
+        function displayClaimsNotifications(claims) {
+            const notificationContainer = document.getElementById('claimsNotifications');
+            const claimsCount = document.getElementById('newClaimsCount');
+            const claimsList = document.getElementById('recentClaimsList');
+            const notificationBadge = document.getElementById('claimsNotification');
+            
+            claimsCount.textContent = claims.length;
+            notificationContainer.style.display = 'block';
+            
+            // Show notification badge
+            if (claims.length > 0) {
+                notificationBadge.textContent = claims.length;
+                notificationBadge.style.display = 'flex';
+            }
+            
+            // Display recent claims
+            const recentClaims = claims.slice(0, 3); // Show only first 3
+            claimsList.innerHTML = recentClaims.map(claim => `
+                <div class="claim-item">
+                    <div class="claim-item-header">
+                        <h5 class="claim-item-title">${claim.item_title}</h5>
+                        <span class="claim-status ${claim.claim_status.replace('_', '-')}">${claim.claim_status.replace('_', ' ')}</span>
+                    </div>
+                    <div class="claim-meta">
+                        Claimed by: ${claim.claimant_name} • ${formatTimeAgo(claim.created_at)}
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Load recent activity
@@ -259,13 +491,29 @@
             activityContainer.innerHTML = activityHTML;
         }
 
+        // Utility functions
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+            
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes} minutes ago`;
+            } else if (diffInMinutes < 1440) {
+                const hours = Math.floor(diffInMinutes / 60);
+                return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+            } else {
+                const days = Math.floor(diffInMinutes / 1440);
+                return `${days} day${days !== 1 ? 's' : ''} ago`;
+            }
+        }
+
         // Helper function for authenticated requests
         async function makeAuthenticatedRequest(url, options = {}) {
             const token = localStorage.getItem('authToken');
             
             if (!token) {
-                window.location.href = '/login.html';
-                return;
+                return null;
             }
             
             const headers = {
@@ -274,26 +522,31 @@
                 ...options.headers
             };
             
-            const response = await fetch(url, {
-                ...options,
-                headers
-            });
-            
-            if (response.status === 401) {
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userData');
-                window.location.href = '/login.html';
-                return;
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers
+                });
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userData');
+                    window.location.href = '/login.html';
+                    return null;
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('Request failed:', error);
+                return null;
             }
-            
-            return response;
         }
 
-        // Load stats when page loads
+        // Load data when page loads
         document.addEventListener('DOMContentLoaded', () => {
             // Add a small delay to ensure other scripts have loaded
             setTimeout(() => {
-                loadUserStats();
+                loadDashboardData();
             }, 1000);
         });
     </script>

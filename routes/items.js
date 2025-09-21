@@ -216,7 +216,7 @@ router.post('/', authenticateToken, upload.array('images', 5), async (req, res) 
 });
 
 // @route   GET /api/items
-// @desc    Get all items with filters (only verified items for public)
+// @desc    Get all items with filters (show all items - verified and unverified)
 // @access  Public
 router.get('/', async (req, res) => {
     try {
@@ -232,9 +232,12 @@ router.get('/', async (req, res) => {
             sortOrder = 'DESC'
         } = req.query;
 
-        const offset = (page - 1) * limit;
+        // Simple pagination
+        const pageNum = parseInt(page) || 1;
+        const limitNum = parseInt(limit) || 12;
+        const offsetNum = (pageNum - 1) * limitNum;
         
-        let whereConditions = ['i.is_verified = TRUE']; // Only show verified items to public
+        let whereConditions = []; // Remove verification requirement - show all items
         let queryParams = [];
 
         // Add filters
@@ -248,13 +251,6 @@ router.get('/', async (req, res) => {
             queryParams.push(status);
         }
 
-        // Check if category column exists before filtering
-        const hasCategoryColumn = await hasColumn('items', 'category');
-        if (category && hasCategoryColumn) {
-            whereConditions.push('i.category = ?');
-            queryParams.push(category);
-        }
-
         if (location) {
             whereConditions.push('i.location LIKE ?');
             queryParams.push(`%${location}%`);
@@ -265,19 +261,31 @@ router.get('/', async (req, res) => {
             queryParams.push(`%${search}%`, `%${search}%`);
         }
 
+        // Check if category column exists before filtering
+        try {
+            const [columns] = await pool.execute(`
+                SELECT COLUMN_NAME 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'items' AND COLUMN_NAME = 'category'
+            `, [process.env.DB_NAME || 'campus_lost_found']);
+            
+            if (category && columns.length > 0) {
+                whereConditions.push('i.category = ?');
+                queryParams.push(category);
+            }
+        } catch (error) {
+            console.log('Category column check failed, skipping category filter');
+        }
+
         const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
-        // Get total count
-        const [countResult] = await pool.execute(`
-            SELECT COUNT(*) as total
-            FROM items i
-            ${whereClause}
-        `, queryParams);
-
+        // Get total count first
+        const countQuery = `SELECT COUNT(*) as total FROM items i ${whereClause}`;
+        const [countResult] = await pool.execute(countQuery, queryParams);
         const totalItems = countResult[0].total;
-        const totalPages = Math.ceil(totalItems / limit);
+        const totalPages = Math.ceil(totalItems / limitNum);
 
-        // Get items
+        // Get items with simple query
         const itemsQuery = `
             SELECT 
                 i.*,
@@ -286,29 +294,43 @@ router.get('/', async (req, res) => {
             FROM items i
             LEFT JOIN users u ON i.reporter_id = u.user_id
             ${whereClause}
-            ORDER BY i.${sortBy} ${sortOrder}
-            LIMIT ? OFFSET ?
+            ORDER BY i.created_at DESC
+            LIMIT ${limitNum} OFFSET ${offsetNum}
         `;
 
-        const [items] = await pool.execute(itemsQuery, [...queryParams, parseInt(limit), parseInt(offset)]);
+        const [items] = await pool.execute(itemsQuery, queryParams);
+
+        console.log(`📋 Retrieved ${items.length} items from database`);
 
         // Parse JSON fields safely
-        const itemsWithParsedData = items.map(item => ({
-            ...item,
-            images: safeJsonParse(item.images, []),
-            contact_info: safeJsonParse(item.contact_info, {}),
-            verification_questions: safeJsonParse(item.verification_questions, [])
-        }));
+        const itemsWithParsedData = items.map(item => {
+            try {
+                return {
+                    ...item,
+                    images: safeJsonParse(item.images, []),
+                    contact_info: safeJsonParse(item.contact_info, {}),
+                    verification_questions: safeJsonParse(item.verification_questions, [])
+                };
+            } catch (error) {
+                console.error('Error parsing item data:', error);
+                return {
+                    ...item,
+                    images: [],
+                    contact_info: {},
+                    verification_questions: []
+                };
+            }
+        });
 
         res.json({
             success: true,
             items: itemsWithParsedData,
             pagination: {
-                currentPage: parseInt(page),
+                currentPage: pageNum,
                 totalPages,
                 totalItems,
-                hasNextPage: page < totalPages,
-                hasPrevPage: page > 1
+                hasNextPage: pageNum < totalPages,
+                hasPrevPage: pageNum > 1
             }
         });
 

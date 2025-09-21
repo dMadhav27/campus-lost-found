@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Item - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .claim-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .claim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .item-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .item-type-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .item-type-lost {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .item-type-found {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .item-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .item-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+
+        .verification-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .security-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .security-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .security-info p {
+            margin: 0;
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+
+        .question-item {
+            background: var(--gray-light);
+            border: 2px solid var(--gray-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .question-item:focus-within {
+            border-color: var(--primary-color);
+        }
+
+        .question-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-text {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gray-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .warning-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--warning-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-text {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--error-color);
+        }
+
+        .error-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-medium);
+        }
+
+        .loading-state .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-border);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .claim-container {
+                padding: 0 1rem;
+            }
+
+            .item-preview,
+            .verification-section,
+            .submit-section {
+                padding: 1.5rem;
+            }
+
+            .item-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .security-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-search-location"></i>
+                    Campus Lost & Found
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/dashboard.html" class="nav-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="/browse-items.html" class="nav-link">
+                        <i class="fas fa-search"></i> Browse
+                    </a></li>
+                    <li><a href="/report-item.html" class="nav-link">
+                        <i class="fas fa-plus"></i> Report Item
+                    </a></li>
+                    <li><a href="/my-items.html" class="nav-link">
+                        <i class="fas fa-list"></i> My Items
+                    </a></li>
+                    <li>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="user-name">Loading...</span>
+                            <div class="user-avatar">JD</div>
+                            <button class="btn btn-outline" id="logoutBtn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 2rem 0; min-height: calc(100vh - 80px);">
+        <div class="claim-container">
+            <!-- Header -->
+            <div class="claim-header">
+                <button class="back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Item Details
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="messageContainer"></div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading item details...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Unable to Load Item</h3>
+                <p>The item you're trying to claim doesn't exist or is no longer available.</p>
+                <button class="btn btn-primary" onclick="goBack()" style="margin-top: 1rem;">
+                    <i class="fas fa-arrow-left"></i>
+                    Go Back
+                </button>
+            </div>
+
+            <!-- Main Content -->
+            <div id="claimContent" style="display: none;">
+                <!-- Item Preview -->
+                <div class="item-preview">
+                    <div id="itemTypeDisplay"></div>
+                    <h2 class="item-title" id="itemTitle"></h2>
+                    <p id="itemDescription" style="color: var(--gray-medium); margin-bottom: 1.5rem;"></p>
+                    
+                    <div class="item-meta" id="itemMeta">
+                        <!-- Meta information will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Verification Section -->
+                <div class="verification-section">
+                    <div class="security-header">
+                        <div class="security-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="security-info">
+                            <h3>Verification Required</h3>
+                            <p>Please answer the security questions to verify you have this item. Only the true owner would know these details.</p>
+                        </div>
+                    </div>
+
+                    <form id="claimForm">
+                        <div id="questionsContainer">
+                            <!-- Questions will be populated by JavaScript -->
+                        </div>
+
+                        <div class="warning-box">
+                            <div class="warning-header">
+                                <i class="fas fa-info-circle"></i>
+                                Important Notice
+                            </div>
+                            <p class="warning-text">
+                                Please answer all questions accurately. False claims or incorrect information may result in account suspension. 
+                                The item owner will be able to see your answers and contact information if your claim is approved.
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <h3 style="margin-bottom: 1rem;">Ready to Submit Your Claim?</h3>
+                    <p style="color: var(--gray-medium); margin-bottom: 2rem;">
+                        Once you submit, the item owner will review your answers. If correct, you'll receive their contact information to arrange pickup.
+                    </p>
+                    
+                    <button type="button" class="btn btn-primary" id="submitClaimBtn" onclick="submitClaim()">
+                        <div class="loading-spinner"></div>
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="btn-text">Submit Claim</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentItem = null;
+        let verificationQuestions = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemId = urlParams.get('id');
+
+            if (!itemId) {
+                showError('No item ID provided');
+                return;
+            }
+
+            await loadItemForClaim(itemId);
+        });
+
+        // Load item details for claiming
+        async function loadItemForClaim(itemId) {
+            try {
+                const response = await fetch(`/api/items/${itemId}`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        currentItem = result.item;
+                        verificationQuestions = currentItem.verification_questions || [];
+                        
+                        if (verificationQuestions.length === 0) {
+                            showError('This item does not have verification questions set up and cannot be claimed at this time.');
+                            return;
+                        }
+                        
+                        displayItemForClaim(currentItem);
+                        return;
+                    }
+                }
+
+                showError('Item not found or not available for claiming');
+
+            } catch (error) {
+                console.error('Error loading item:', error);
+                showError('Failed to load item details');
+            }
+        }
+
+        // Display item details and verification form
+        function displayItemForClaim(item) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('claimContent').style.display = 'block';
+
+            // Type badge
+            const typeDisplay = document.getElementById('itemTypeDisplay');
+            typeDisplay.innerHTML = `<div class="item-type-badge item-type-${item.type}">${item.type.toUpperCase()}</div>`;
+
+            // Basic info
+            document.getElementById('itemTitle').textContent = item.title;
+            document.getElementById('itemDescription').textContent = item.description;
+
+            // Meta information
+            const metaContainer = document.getElementById('itemMeta');
+            metaContainer.innerHTML = `
+                <div class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Location: ${item.location || 'Not specified'}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Date ${item.type === 'lost' ? 'Lost' : 'Found'}: ${formatDate(item.date_lost_found)}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-user"></i>
+                    <span>Reported by: ${item.reporter_name || 'Anonymous'}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Posted: ${formatDate(item.created_at)}</span>
+                </div>
+            `;
+
+            // Display verification questions
+            displayVerificationQuestions(verificationQuestions);
+        }
+
+        // Display verification questions
+        function displayVerificationQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-item';
+                questionDiv.innerHTML = `
+                    <div class="question-number">${index + 1}</div>
+                    <div class="question-text">${q.question}</div>
+                    <input type="text" class="answer-input" placeholder="Enter your answer..." 
+                           data-question-index="${index}" required>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        // Submit claim
+        async function submitClaim() {
+            const submitBtn = document.getElementById('submitClaimBtn');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const btnText = submitBtn.querySelector('.btn-text');
+
+            // Collect answers
+            const answerInputs = document.querySelectorAll('.answer-input');
+            const answers = Array.from(answerInputs).map(input => input.value.trim());
+
+            // Validate answers
+            if (answers.some(answer => answer === '')) {
+                showMessage('error', 'Please answer all verification questions');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            if (spinner) spinner.style.display = 'block';
+            if (btnText) btnText.textContent = 'Submitting Claim...';
+
+            try {
+                const response = await makeAuthenticatedRequest('/api/claims', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        itemId: currentItem.item_id,
+                        verificationAnswers: answers
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('success', result.message);
+                    
+                    // Redirect after success
+                    setTimeout(() => {
+                        window.location.href = '/my-items.html';
+                    }, 3000);
+                } else {
+                    showMessage('error', result.error || 'Failed to submit claim');
+                }
+
+            } catch (error) {
+                console.error('Submit claim error:', error);
+                showMessage('error', 'Failed to submit claim. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (btnText) btnText.textContent = 'Submit Claim';
+            }
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Not specified';
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function showMessage(type, message) {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message message-${type} show`;
+            messageEl.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            messageContainer.innerHTML = '';
+            messageContainer.appendChild(messageEl);
+            
+            // Auto hide after 5 seconds for success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageEl.remove();
+                }, 5000);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorState').querySelector('p').textContent = message;
+        }
+
+        function goBack() {
+            if (currentItem) {
+                window.location.href = `/item-details.html?id=${currentItem.item_id}`;
+            } else {
+                window.history.back();
+            }
+        }
+
+        // Helper function for authenticated requests
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+    </script>
+</body>
+</html>

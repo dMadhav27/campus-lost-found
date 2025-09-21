@@ -97,20 +97,20 @@ router.post('/', authenticateToken, upload.array('images', 5), async (req, res) 
         } = req.body;
 
         // Validate required fields
-        if (!type || !title || !description || !dateLostFound) {
-            return res.status(400).json({
-                success: false,
-                error: 'Missing required fields'
-            });
-        }
+if (!type || !title || !description || !location || !dateLostFound) {
+    return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: type, title, description, location, and date are required'
+    });
+}
 
-        // Validate type
-        if (!['lost', 'found'].includes(type)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Type must be either "lost" or "found"'
-            });
-        }
+// Add validation for lost items requiring images
+if (type === 'lost' && (!req.files || req.files.length === 0)) {
+    return res.status(400).json({
+        success: false,
+        error: 'Lost items require at least one image as proof of ownership'
+    });
+}
 
         // Process uploaded images
         const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];

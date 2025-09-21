@@ -255,7 +255,7 @@
 
                 <div class="form-group">
                     <label for="studentId" class="form-label">
-                        Student ID <span class="required">*</span>
+                        Student ID (Seen on your Fee Receipt)<span class="required">*</span>
                     </label>
                     <div class="input-icon">
                         <input type="text" id="studentId" name="studentId" class="form-input" placeholder="Enter your student ID" required>
@@ -265,18 +265,18 @@
 
                 <div class="form-group">
                     <label for="email" class="form-label">
-                        College Email <span class="required">*</span>
+                        Your Active Email (You'll recieve updates on this ID)<span class="required">*</span>
                     </label>
                     <div class="input-icon">
-                        <input type="email" id="email" name="email" class="form-input" placeholder="your.name@college.edu" required>
+                        <input type="email" id="email" name="email" class="form-input" placeholder="Enter email here..." required>
                         <i class="fas fa-envelope"></i>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="phone" class="form-label">Phone Number</label>
+                    <label for="phone" class="form-label">Phone/WhatsApp Number</label>
                     <div class="input-icon">
-                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+1 (555) 123-4567">
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+91 1234567890">
                         <i class="fas fa-phone"></i>
                     </div>
                 </div>
@@ -287,12 +287,12 @@
                         <select id="department" name="department" class="form-select">
                             <option value="">Select Department</option>
                             <option value="Computer Science">Computer Science</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Business">Business</option>
-                            <option value="Arts & Sciences">Arts & Sciences</option>
-                            <option value="Medicine">Medicine</option>
-                            <option value="Law">Law</option>
-                            <option value="Education">Education</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Botany">Botany</option>
+                            <option value="Arts">Arts</option>
+                            <option value="Microbiology">Microbiology</option>
+                            <option value="Biotechnology">Biotechnology</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -310,117 +310,59 @@
                     </div>
                 </div>
 
-                <!-- Document Upload Section -->
-                <div class="document-upload-section">
-                    <div class="document-header">
-                        <div class="document-icon">
-                            <i class="fas fa-file-upload"></i>
-                        </div>
-                        <div class="document-info">
-                            <h4>Document Verification Required</h4>
-                            <p>Upload required documents for account verification and enhanced security</p>
-                        </div>
-                    </div>
+                <!-- Student ID Verification Section -->
+<div class="document-upload-section">
+    <div class="document-header">
+        <div class="document-icon">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <div class="document-info">
+            <h4>Student ID Verification Required</h4>
+            <p>Upload a clear photo of your college-issued student ID card for account verification</p>
+        </div>
+    </div>
 
-                    <!-- Fee Receipt Upload -->
-                    <div class="document-upload">
-                        <label class="form-label">
-                            Fee Receipt (Current Academic Year) <span class="required">*</span>
-                        </label>
-                        <div class="upload-area" id="feeReceiptUpload">
-                            <div class="upload-icon">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="upload-text">Click to upload Fee Receipt</div>
-                            <div class="upload-hint">PDF format only, max 10MB</div>
-                        </div>
-                        <input type="file" id="feeReceipt" name="feeReceipt" accept=".pdf" style="display: none;" required>
-                        <div class="file-preview" id="feeReceiptPreview">
-                            <div class="file-icon">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="file-info">
-                                <div class="file-name"></div>
-                                <div class="file-size"></div>
-                            </div>
-                            <button type="button" class="remove-file" onclick="removeFile('feeReceipt')">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="error-message" id="feeReceiptError"></div>
-                    </div>
+    <!-- Student ID Card Upload -->
+    <div class="document-upload">
+        <label class="form-label">
+            Student ID Card <span class="required">*</span>
+        </label>
+        <div class="upload-area" id="studentIdCardUpload">
+            <div class="upload-icon">
+                <i class="fas fa-address-card"></i>
+            </div>
+            <div class="upload-text">Click to upload Student ID Card</div>
+            <div class="upload-hint">JPG, PNG format only, max 10MB</div>
+        </div>
+        <input type="file" id="studentIdCard" name="studentIdCard" accept=".jpg,.jpeg,.png" style="display: none;" required>
+        <div class="file-preview" id="studentIdCardPreview">
+            <div class="file-icon">
+                <i class="fas fa-address-card"></i>
+            </div>
+            <div class="file-info">
+                <div class="file-name"></div>
+                <div class="file-size"></div>
+            </div>
+            <button type="button" class="remove-file" onclick="removeFile('studentIdCard')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="error-message" id="studentIdCardError"></div>
+    </div>
 
-                    <!-- Aadhar Card Upload -->
-                    <div class="document-upload">
-                        <label class="form-label">
-                            Aadhar Card <span class="required">*</span>
-                        </label>
-                        <div class="upload-area" id="aadharCardUpload">
-                            <div class="upload-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <div class="upload-text">Click to upload Aadhar Card</div>
-                            <div class="upload-hint">JPG, PNG format only, max 10MB</div>
-                        </div>
-                        <input type="file" id="aadharCard" name="aadharCard" accept=".jpg,.jpeg,.png" style="display: none;" required>
-                        <div class="file-preview" id="aadharCardPreview">
-                            <div class="file-icon">
-                                <i class="fas fa-id-card"></i>
-                            </div>
-                            <div class="file-info">
-                                <div class="file-name"></div>
-                                <div class="file-size"></div>
-                            </div>
-                            <button type="button" class="remove-file" onclick="removeFile('aadharCard')">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="error-message" id="aadharCardError"></div>
-                    </div>
-
-                    <!-- Student ID Card Upload -->
-                    <div class="document-upload">
-                        <label class="form-label">
-                            Student ID Card <span class="required">*</span>
-                        </label>
-                        <div class="upload-area" id="studentIdCardUpload">
-                            <div class="upload-icon">
-                                <i class="fas fa-address-card"></i>
-                            </div>
-                            <div class="upload-text">Click to upload Student ID Card</div>
-                            <div class="upload-hint">JPG, PNG format only, max 10MB</div>
-                        </div>
-                        <input type="file" id="studentIdCard" name="studentIdCard" accept=".jpg,.jpeg,.png" style="display: none;" required>
-                        <div class="file-preview" id="studentIdCardPreview">
-                            <div class="file-icon">
-                                <i class="fas fa-address-card"></i>
-                            </div>
-                            <div class="file-info">
-                                <div class="file-name"></div>
-                                <div class="file-size"></div>
-                            </div>
-                            <button type="button" class="remove-file" onclick="removeFile('studentIdCard')">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="error-message" id="studentIdCardError"></div>
-                    </div>
-
-                    <div class="document-requirements">
-                        <h5>
-                            <i class="fas fa-info-circle"></i>
-                            Document Requirements
-                        </h5>
-                        <ul>
-                            <li><strong>Fee Receipt:</strong> Current academic year fee receipt in PDF format</li>
-                            <li><strong>Aadhar Card:</strong> Clear photo of Aadhar card (front side preferred)</li>
-                            <li><strong>Student ID Card:</strong> Clear photo of college-issued student ID card</li>
-                            <li>All documents must be clearly readable and not blurry</li>
-                            <li>Maximum file size: 10MB per document</li>
-                            <li>Your documents will be securely stored and used only for verification</li>
-                        </ul>
-                    </div>
-                </div>
+    <div class="document-requirements">
+        <h5>
+            <i class="fas fa-info-circle"></i>
+            Document Requirements
+        </h5>
+        <ul>
+            <li><strong>Student ID Card:</strong> Clear photo of college-issued student ID card</li>
+            <li>Document must be clearly readable and not blurry</li>
+            <li>Maximum file size: 10MB</li>
+            <li>Your document will be securely stored and used only for verification</li>
+        </ul>
+    </div>
+</div>
 
                 <!-- Password Section -->
                 <div class="form-group">
@@ -483,8 +425,7 @@
     <script>
         // Document upload handling
         let uploadedFiles = {
-            feeReceipt: null,
-            aadharCard: null,
+            
             studentIdCard: null
         };
 
@@ -493,86 +434,77 @@
         });
 
         function setupDocumentUploads() {
-            const documentTypes = ['feeReceipt', 'aadharCard', 'studentIdCard'];
+    const documentTypes = ['studentIdCard']; // Only student ID card now
+    
+    documentTypes.forEach(type => {
+        const uploadArea = document.getElementById(type + 'Upload');
+        const fileInput = document.getElementById(type);
+        const preview = document.getElementById(type + 'Preview');
+        const errorDiv = document.getElementById(type + 'Error');
+        
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                validateAndPreviewFile(type, file);
+            }
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
             
-            documentTypes.forEach(type => {
-                const uploadArea = document.getElementById(type + 'Upload');
-                const fileInput = document.getElementById(type);
-                const preview = document.getElementById(type + 'Preview');
-                const errorDiv = document.getElementById(type + 'Error');
-                
-                // Click to upload
-                uploadArea.addEventListener('click', () => fileInput.click());
-                
-                // File selection
-                fileInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        validateAndPreviewFile(type, file);
-                    }
-                });
-                
-                // Drag and drop
-                uploadArea.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.add('dragover');
-                });
-                
-                uploadArea.addEventListener('dragleave', () => {
-                    uploadArea.classList.remove('dragover');
-                });
-                
-                uploadArea.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.remove('dragover');
-                    
-                    const file = e.dataTransfer.files[0];
-                    if (file) {
-                        fileInput.files = e.dataTransfer.files;
-                        validateAndPreviewFile(type, file);
-                    }
-                });
-            });
-        }
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                fileInput.files = e.dataTransfer.files;
+                validateAndPreviewFile(type, file);
+            }
+        });
+    });
+}
 
         function validateAndPreviewFile(type, file) {
-            const uploadArea = document.getElementById(type + 'Upload');
-            const preview = document.getElementById(type + 'Preview');
-            const errorDiv = document.getElementById(type + 'Error');
-            
-            // Clear previous errors
-            errorDiv.style.display = 'none';
-            errorDiv.textContent = '';
-            
-            // Validate file type
-            let isValidType = false;
-            if (type === 'feeReceipt') {
-                isValidType = file.type === 'application/pdf';
-                if (!isValidType) {
-                    showFileError(type, 'Fee receipt must be a PDF file');
-                    return;
-                }
-            } else {
-                isValidType = ['image/jpeg', 'image/jpg', 'image/png'].includes(file.type);
-                if (!isValidType) {
-                    showFileError(type, 'ID cards must be JPG or PNG files');
-                    return;
-                }
-            }
-            
-            // Validate file size (10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                showFileError(type, 'File size must be less than 10MB');
-                return;
-            }
-            
-            // Store file and show preview
-            uploadedFiles[type] = file;
-            showFilePreview(type, file);
-            
-            // Update upload area appearance
-            uploadArea.classList.add('uploaded');
-        }
+    const uploadArea = document.getElementById(type + 'Upload');
+    const preview = document.getElementById(type + 'Preview');
+    const errorDiv = document.getElementById(type + 'Error');
+    
+    // Clear previous errors
+    errorDiv.style.display = 'none';
+    errorDiv.textContent = '';
+    
+    // Validate file type (only images for student ID)
+    const isValidType = ['image/jpeg', 'image/jpg', 'image/png'].includes(file.type);
+    if (!isValidType) {
+        showFileError(type, 'Student ID card must be a JPG or PNG file');
+        return;
+    }
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showFileError(type, 'File size must be less than 10MB');
+        return;
+    }
+    
+    // Store file and show preview
+    uploadedFiles[type] = file;
+    showFilePreview(type, file);
+    
+    // Update upload area appearance
+    uploadArea.classList.add('uploaded');
+}
 
         function showFileError(type, message) {
             const errorDiv = document.getElementById(type + 'Error');
@@ -625,10 +557,10 @@
             const requiredDocs = ['feeReceipt', 'aadharCard', 'studentIdCard'];
             const missingDocs = requiredDocs.filter(type => !uploadedFiles[type]);
             
-            if (missingDocs.length > 0) {
-                showMessage('error', 'Please upload all required documents: ' + missingDocs.map(d => d.replace(/([A-Z])/g, ' $1').toLowerCase()).join(', '));
-                return;
-            }
+            if (!uploadedFiles.studentIdCard) {
+    showMessage('error', 'Please upload your student ID card');
+    return;
+}
             
             // Validate form fields
             if (!validateForm()) {

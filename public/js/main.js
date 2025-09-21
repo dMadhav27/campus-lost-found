@@ -1,4 +1,4 @@
-// Campus Lost & Found - Main JavaScript
+// Campus Lost & Found - Enhanced Main JavaScript with Auth Error Handling
 
 class CampusLostFound {
     constructor() {
@@ -31,6 +31,76 @@ class CampusLostFound {
 
         // Real-time validation
         this.setupRealTimeValidation();
+        
+        // Global error handler for authentication errors
+        this.setupGlobalErrorHandler();
+    }
+
+    // NEW: Setup global error handler for auth errors
+    setupGlobalErrorHandler() {
+        // Intercept all fetch requests to handle auth errors globally
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            try {
+                const response = await originalFetch.apply(window, args);
+                
+                // Check for authentication errors
+                if (response.status === 401) {
+                    const result = await response.clone().json();
+                    this.handleAuthenticationError(result);
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                throw error;
+            }
+        };
+    }
+
+    // NEW: Handle authentication errors globally
+    handleAuthenticationError(result) {
+        const errorCode = result.code;
+        const errorMessage = result.error;
+        
+        console.log('Authentication error detected:', errorCode, errorMessage);
+        
+        // Clear invalid tokens and redirect to login
+        if (['USER_NOT_FOUND', 'TOKEN_MISMATCH', 'TOKEN_EXPIRED', 'INVALID_TOKEN', 'ACCOUNT_NOT_VERIFIED'].includes(errorCode)) {
+            // Clear stored authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            
+            // Show user-friendly message
+            let userMessage = '';
+            switch (errorCode) {
+                case 'USER_NOT_FOUND':
+                    userMessage = 'Your account no longer exists. Please contact support or create a new account.';
+                    break;
+                case 'TOKEN_MISMATCH':
+                    userMessage = 'Security validation failed. Please log in again.';
+                    break;
+                case 'TOKEN_EXPIRED':
+                    userMessage = 'Your session has expired. Please log in again.';
+                    break;
+                case 'ACCOUNT_NOT_VERIFIED':
+                    userMessage = 'Your account is not verified. Please contact an administrator.';
+                    break;
+                default:
+                    userMessage = 'Authentication failed. Please log in again.';
+            }
+            
+            // Show error message if not on login/signup pages
+            const currentPath = window.location.pathname;
+            if (!['/login.html', '/signup.html', '/'].includes(currentPath)) {
+                alert(userMessage);
+            }
+            
+            // Redirect to login
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 1000);
+        }
     }
 
     setupRealTimeValidation() {
@@ -143,7 +213,7 @@ class CampusLostFound {
                 
                 this.showMessage('success', result.message);
                 
-                // Redirect based on role - FIXED HERE
+                // Redirect based on role
                 setTimeout(() => {
                     if (result.user.role === 'admin') {
                         window.location.href = '/admin-dashboard.html';
@@ -190,7 +260,7 @@ class CampusLostFound {
                 
                 this.showMessage('success', result.message);
                 
-                // Redirect based on role - FIXED HERE
+                // Redirect based on role
                 setTimeout(() => {
                     if (result.user.role === 'admin') {
                         window.location.href = '/admin-dashboard.html';
@@ -349,7 +419,7 @@ class CampusLostFound {
             // Redirect non-admins away from admin pages
             window.location.href = '/dashboard.html';
         } else if (publicPages.includes(currentPath) && token) {
-            // Redirect to appropriate dashboard if already authenticated - FIXED HERE
+            // Redirect to appropriate dashboard if already authenticated
             if (userData.role === 'admin') {
                 window.location.href = '/admin-dashboard.html';
             } else {
@@ -422,12 +492,14 @@ class CampusLostFound {
         });
     }
 
-    // Utility method to make authenticated requests
+    // ENHANCED: Utility method to make authenticated requests with better error handling
     async makeAuthenticatedRequest(url, options = {}) {
         const token = localStorage.getItem('authToken');
         
         if (!token) {
-            throw new Error('No authentication token found');
+            console.warn('No authentication token found');
+            window.location.href = '/login.html';
+            return null;
         }
         
         const headers = {
@@ -436,18 +508,19 @@ class CampusLostFound {
             ...options.headers
         };
         
-        const response = await fetch(url, {
-            ...options,
-            headers
-        });
-        
-        if (response.status === 401) {
-            // Token expired or invalid
-            this.handleLogout();
-            return;
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+            
+            // Let the global error handler deal with 401 errors
+            return response;
+            
+        } catch (error) {
+            console.error('Request failed:', error);
+            throw error;
         }
-        
-        return response;
     }
 }
 

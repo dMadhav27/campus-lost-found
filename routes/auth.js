@@ -51,28 +51,21 @@ const documentUpload = multer({
         fileSize: 10 * 1024 * 1024, // 10MB limit
     },
     fileFilter: (req, file, cb) => {
-        if (file.fieldname === 'feeReceipt') {
-            // Only PDF for fee receipt
-            if (file.mimetype === 'application/pdf') {
-                cb(null, true);
-            } else {
-                cb(new Error('Fee receipt must be a PDF file'), false);
-            }
-        } else if (file.fieldname === 'aadharCard' || file.fieldname === 'studentIdCard') {
-            // Only images for ID cards
-            const allowedTypes = /jpeg|jpg|png/;
-            const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-            const mimetype = allowedTypes.test(file.mimetype);
-            
-            if (mimetype && extname) {
-                cb(null, true);
-            } else {
-                cb(new Error('ID cards must be JPG, JPEG, or PNG files'), false);
-            }
+    if (file.fieldname === 'studentIdCard') {
+        // Only images for student ID card
+        const allowedTypes = /jpeg|jpg|png/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        
+        if (mimetype && extname) {
+            cb(null, true);
         } else {
-            cb(new Error('Invalid file field'), false);
+            cb(new Error('Student ID card must be JPG, JPEG, or PNG file'), false);
         }
+    } else {
+        cb(new Error('Invalid file field'), false);
     }
+}
 });
 
 // Rate limiting for auth endpoints
@@ -117,8 +110,7 @@ function cleanupFiles(files) {
 // @desc    Register new student with document verification
 // @access  Public
 router.post('/signup', authLimiter, documentUpload.fields([
-    { name: 'feeReceipt', maxCount: 1 },
-    { name: 'aadharCard', maxCount: 1 },
+    
     { name: 'studentIdCard', maxCount: 1 }
 ]), async (req, res) => {
     try {
@@ -146,11 +138,11 @@ router.post('/signup', authLimiter, documentUpload.fields([
         }
 
         // Validate document uploads
-        if (!req.files || !req.files.feeReceipt || !req.files.aadharCard || !req.files.studentIdCard) {
+        if (!req.files.studentIdCard) {
             cleanupFiles(req.files || {});
             return res.status(400).json({
                 success: false,
-                error: 'All documents are required: Fee Receipt (PDF), Aadhar Card (JPG/PNG), Student ID Card (JPG/PNG)'
+                error: 'Student ID Required'
             });
         }
 
@@ -201,22 +193,19 @@ router.post('/signup', authLimiter, documentUpload.fields([
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
         // Get file paths
-        const feeReceiptPath = `/documents/${req.files.feeReceipt[0].filename}`;
-        const aadharCardPath = `/documents/${req.files.aadharCard[0].filename}`;
         const studentIdCardPath = `/documents/${req.files.studentIdCard[0].filename}`;
 
         // Insert new user with documents
         const [result] = await pool.execute(`
-            INSERT INTO users (
-                student_id, email, password_hash, first_name, last_name, phone, 
-                department, year_of_study, fee_receipt, aadhar_card, student_id_card
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            studentId, email, passwordHash, firstName, lastName, phone || null, 
-            department || null, yearOfStudy || null, feeReceiptPath, aadharCardPath, 
-            studentIdCardPath
-        ]);
+        INSERT INTO users (
+            student_id, email, password_hash, first_name, last_name, phone, 
+            department, year_of_study, student_id_card
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+        studentId, email, passwordHash, firstName, lastName, phone || null, 
+        department || null, yearOfStudy || null, studentIdCardPath
+    ]);
 
         // Get the created user
         const [newUser] = await pool.execute(

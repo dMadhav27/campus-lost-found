@@ -464,11 +464,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="location" class="form-label">Location</label>
-                                <select id="location" name="location" class="form-select">
-                                    <option value="">Loading locations...</option>
-                                </select>
-                            </div>
+    <label for="location" class="form-label">
+        Location <span class="required">*</span>
+    </label>
+    <input type="text" id="location" name="location" class="form-input" 
+           placeholder="e.g., Main Library, Computer Lab 1, or custom location" required>
+</div>
                         </div>
 
                         <div class="form-row">
@@ -494,18 +495,21 @@
                         </div>
 
                         <!-- Image Upload -->
-                        <div class="form-group">
-                            <label class="form-label">Images (Up to 5)</label>
-                            <div class="image-upload-area" id="imageUploadArea">
-                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray-medium); margin-bottom: 1rem;"></i>
-                                <p><strong>Click to upload images</strong> or drag and drop</p>
-                                <p style="font-size: 0.85rem; color: var(--gray-medium);">
-                                    JPG, PNG, GIF up to 5MB each
-                                </p>
-                            </div>
-                            <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;">
-                            <div class="image-preview" id="imagePreview"></div>
-                        </div>
+<div class="form-group">
+    <label class="form-label">
+        <span id="imageLabel">Images (Up to 5)</span>
+        <span class="required" id="imageRequired" style="display: none;">*</span>
+    </label>
+    <div class="image-upload-area" id="imageUploadArea">
+        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray-medium); margin-bottom: 1rem;"></i>
+        <p><strong>Click to upload images</strong> or drag and drop</p>
+        <p style="font-size: 0.85rem; color: var(--gray-medium);" id="imageHint">
+            JPG, PNG, GIF up to 5MB each
+        </p>
+    </div>
+    <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;">
+    <div class="image-preview" id="imagePreview"></div>
+</div>
                     </div>
 
                     <!-- Step 3: Security Questions -->
@@ -640,7 +644,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Initializing enhanced report item form...');
             loadCategories();
-            loadLocations();
+           
             setupEventListeners();
             populateUserEmail();
             initializeSecurityQuestions();
@@ -672,6 +676,45 @@
                     });
                 });
             });
+
+            // Add this function after the type selection event listener:
+function updateFormBasedOnType(type) {
+    const imageLabel = document.getElementById('imageLabel');
+    const imageRequired = document.getElementById('imageRequired');
+    const imageHint = document.getElementById('imageHint');
+    
+    if (type === 'lost') {
+        imageLabel.textContent = 'Proof of Ownership (Up to 5)';
+        imageRequired.style.display = 'inline';
+        imageHint.innerHTML = `
+            JPG, PNG, GIF up to 5MB each<br>
+            <strong>Required:</strong> Upload invoice, receipt, or photos proving ownership
+        `;
+    } else {
+        imageLabel.textContent = 'Images (Up to 5)';
+        imageRequired.style.display = 'none';
+        imageHint.textContent = 'JPG, PNG, GIF up to 5MB each';
+    }
+}
+
+// Update the type selection event listener:
+document.querySelectorAll('.type-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedType = this.dataset.type;
+        document.getElementById('itemType').value = selectedType;
+        
+        // Update text based on type
+        const typeText = selectedType === 'lost' ? 'Lost' : 'Found';
+        document.querySelectorAll('.item-type-text').forEach(el => {
+            el.textContent = typeText;
+        });
+        
+        // Update form based on type
+        updateFormBasedOnType(selectedType);
+    });
+});
 
             // Navigation buttons
             document.getElementById('nextBtn').addEventListener('click', nextStep);
@@ -802,59 +845,48 @@
         }
 
         function validateCurrentStep() {
-            switch (currentStep) {
-                case 1:
-                    if (!selectedType) {
-                        alert('Please select whether you lost or found an item');
-                        return false;
-                    }
-                    break;
-                case 2:
-                    const title = document.getElementById('title').value.trim();
-                    const description = document.getElementById('description').value.trim();
-                    const dateLostFound = document.getElementById('dateLostFound').value;
-                    
-                    if (!title) {
-                        alert('Please enter an item title');
-                        return false;
-                    }
-                    if (!description) {
-                        alert('Please provide a detailed description');
-                        return false;
-                    }
-                    if (!dateLostFound) {
-                        alert('Please select the date');
-                        return false;
-                    }
-                    break;
-                case 3:
-                    // Validate security questions
-                    const validQuestions = securityQuestions.filter(q => 
-                        q.question.trim().length >= 5 && q.answer.trim().length >= 1
-                    );
-                    
-                    if (validQuestions.length < 2) {
-                        alert('Please provide at least 2 complete security questions with answers (minimum 5 characters for questions)');
-                        return false;
-                    }
-                    
-                    // Check for generic questions
-                    const genericPatterns = ['what color', 'what brand', 'what size'];
-                    const hasGeneric = validQuestions.some(q => 
-                        genericPatterns.some(pattern => 
-                            q.question.toLowerCase().includes(pattern) && q.answer.length < 5
-                        )
-                    );
-                    
-                    if (hasGeneric) {
-                        if (!confirm('Some questions appear generic and may be easy to guess. Are you sure you want to continue?')) {
-                            return false;
-                        }
-                    }
-                    break;
+    switch (currentStep) {
+        case 1:
+            if (!selectedType) {
+                alert('Please select whether you lost or found an item');
+                return false;
             }
-            return true;
-        }
+            break;
+        case 2:
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const dateLostFound = document.getElementById('dateLostFound').value;
+            
+            if (!title) {
+                alert('Please enter an item title');
+                return false;
+            }
+            if (!description) {
+                alert('Please provide a detailed description');
+                return false;
+            }
+            if (!location) {
+                alert('Please specify the location');
+                return false;
+            }
+            if (!dateLostFound) {
+                alert('Please select the date');
+                return false;
+            }
+            
+            // Validate image upload for lost items
+            if (selectedType === 'lost' && selectedImages.length === 0) {
+                alert('For lost items, please upload at least one image as proof of ownership (invoice, receipt, or photo)');
+                return false;
+            }
+            break;
+        case 3:
+            // ... existing validation code ...
+            break;
+    }
+    return true;
+}
 
         // Load categories and locations
         async function loadCategories() {
@@ -877,25 +909,7 @@
             }
         }
 
-        async function loadLocations() {
-            try {
-                const response = await fetch('/api/items/meta/locations');
-                const result = await response.json();
-                if (result.success) {
-                    const select = document.getElementById('location');
-                    select.innerHTML = '<option value="">Select Location</option>';
-                    result.locations.forEach(loc => {
-                        const option = document.createElement('option');
-                        option.value = loc.name;
-                        option.textContent = loc.name;
-                        select.appendChild(option);
-                    });
-                    console.log('Locations loaded:', result.locations.length);
-                }
-            } catch (error) {
-                console.error('Error loading locations:', error);
-            }
-        }
+
 
         // Populate user email
         function populateUserEmail() {

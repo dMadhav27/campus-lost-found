@@ -17,7 +17,7 @@ const authenticateToken = async (req, res, next) => {
         // Verify JWT token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
-        // Get user from database
+        // CRITICAL FIX: Always check if user exists in database
         const [rows] = await pool.execute(
             'SELECT user_id, email, first_name, last_name, role, is_verified FROM users WHERE user_id = ?',
             [decoded.userId]
@@ -26,7 +26,8 @@ const authenticateToken = async (req, res, next) => {
         if (rows.length === 0) {
             return res.status(401).json({ 
                 success: false, 
-                error: 'Invalid token - user not found' 
+                error: 'User account no longer exists. Please log in again.',
+                code: 'USER_NOT_FOUND'
             });
         }
         
@@ -36,7 +37,17 @@ const authenticateToken = async (req, res, next) => {
         if (!user.is_verified) {
             return res.status(401).json({ 
                 success: false, 
-                error: 'Account not verified' 
+                error: 'Account not verified',
+                code: 'ACCOUNT_NOT_VERIFIED'
+            });
+        }
+        
+        // ADDITIONAL SECURITY: Check if user data in token matches database
+        if (decoded.email !== user.email) {
+            return res.status(401).json({
+                success: false,
+                error: 'Token data mismatch. Please log in again.',
+                code: 'TOKEN_MISMATCH'
             });
         }
         
@@ -50,20 +61,23 @@ const authenticateToken = async (req, res, next) => {
         if (error.name === 'TokenExpiredError') {
             return res.status(403).json({ 
                 success: false, 
-                error: 'Token has expired' 
+                error: 'Token has expired. Please log in again.',
+                code: 'TOKEN_EXPIRED'
             });
         }
         
         if (error.name === 'JsonWebTokenError') {
             return res.status(403).json({ 
                 success: false, 
-                error: 'Invalid token' 
+                error: 'Invalid token. Please log in again.',
+                code: 'INVALID_TOKEN'
             });
         }
         
         return res.status(500).json({ 
             success: false, 
-            error: 'Token verification failed' 
+            error: 'Token verification failed',
+            code: 'VERIFICATION_FAILED'
         });
     }
 };
@@ -73,7 +87,8 @@ const requireAdmin = (req, res, next) => {
     if (!req.user || req.user.role !== 'admin') {
         return res.status(403).json({ 
             success: false, 
-            error: 'Admin access required' 
+            error: 'Admin access required',
+            code: 'INSUFFICIENT_PERMISSIONS'
         });
     }
     next();
@@ -93,7 +108,8 @@ const validateInput = (requiredFields) => {
         if (missingFields.length > 0) {
             return res.status(400).json({
                 success: false,
-                error: `Missing required fields: ${missingFields.join(', ')}`
+                error: `Missing required fields: ${missingFields.join(', ')}`,
+                code: 'MISSING_FIELDS'
             });
         }
         

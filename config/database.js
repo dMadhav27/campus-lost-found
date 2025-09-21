@@ -187,6 +187,7 @@ async function initializeDatabase() {
 }
 
 // Create demo users for testing
+// Create demo users for testing
 async function createDemoUsers() {
     try {
         const bcrypt = require('bcryptjs');
@@ -198,23 +199,23 @@ async function createDemoUsers() {
             console.log('🔄 Creating demo users...');
             
             // Create demo student
-            // In the createDemoUsers function, update the student creation:
-const studentPassword = await bcrypt.hash('student123', 12);
-await pool.execute(`
-    INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role, fee_receipt, aadhar_card, student_id_card)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`, ['STU001', 'student@college.edu', studentPassword, 'John', 'Doe', '+1234567890', 'Computer Science', 3, 'student', '/documents/demo_fee_receipt.pdf', '/documents/demo_aadhar.jpg', '/documents/demo_student_id.jpg']);
-            // Create demo admin
-            const adminPassword = await bcrypt.hash('Admin@123', 12);
+            const studentPassword = await bcrypt.hash('student123', 12);
             await pool.execute(`
-                INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `, ['ADM001', 'admin@college.edu', adminPassword, 'Admin', 'User', '+1234567891', 'Administration', 0, 'admin']);
+                INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role, is_verified)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, ['STU001', 'student@college.edu', studentPassword, 'John', 'Doe', '+1234567890', 'Computer Science', 3, 'student', 1]);
+            
+            // Create demo admin - FIXED PASSWORD TO MATCH LOGIN FORM
+            const adminPassword = await bcrypt.hash('admin123', 12);
+            await pool.execute(`
+                INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role, is_verified)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, ['ADM001', 'admin@college.edu', adminPassword, 'Admin', 'User', '+1234567891', 'Administration', 0, 'admin', 1]);
             
             console.log('✅ Demo users created successfully');
             console.log('📝 Demo Credentials:');
             console.log('   Student: student@college.edu / student123');
-            console.log('   Admin: admin@college.edu / Admin@123');
+            console.log('   Admin: admin@college.edu / admin123');
         }
     } catch (error) {
         if (!error.message.includes('Duplicate entry')) {

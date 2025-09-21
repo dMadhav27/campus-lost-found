@@ -137,18 +137,21 @@ class CampusLostFound {
             const result = await response.json();
             
             if (result.success) {
-                // Store authentication data
-                localStorage.setItem('authToken', result.token);
-                localStorage.setItem('userData', JSON.stringify(result.user));
-                
-                this.showMessage('success', result.message);
-                
-                // Redirect to dashboard after 1 second
-                setTimeout(() => {
-                    window.location.href = '/dashboard.html';
-                }, 1000);
-                
-            } else {
+    // Store authentication data
+    localStorage.setItem('authToken', result.token);
+    localStorage.setItem('userData', JSON.stringify(result.user));
+    
+    this.showMessage('success', result.message);
+    
+    // Redirect based on role
+    setTimeout(() => {
+        if (result.user.role === 'admin') {
+            window.location.href = '/admin-dashboard.html';
+        } else {
+            window.location.href = '/dashboard.html';
+        }
+    }, 1000);
+} else {
                 this.showMessage('error', result.error);
             }
             
@@ -322,26 +325,37 @@ class CampusLostFound {
     }
 
     checkAuthentication() {
-        const token = localStorage.getItem('authToken');
-        const currentPath = window.location.pathname;
-        
-        // Protected pages that require authentication
-        const protectedPages = ['/dashboard.html'];
-        
-        // Public pages that redirect if already authenticated
-        const publicPages = ['/login.html', '/signup.html'];
-        
-        if (protectedPages.includes(currentPath) && !token) {
-            // Redirect to login if trying to access protected page without token
-            window.location.href = '/login.html';
-        } else if (publicPages.includes(currentPath) && token) {
-            // Redirect to dashboard if already authenticated
+    const token = localStorage.getItem('authToken');
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const currentPath = window.location.pathname;
+    
+    // Protected pages that require authentication
+    const protectedPages = ['/dashboard.html', '/admin-dashboard.html'];
+    
+    // Public pages that redirect if already authenticated
+    const publicPages = ['/login.html', '/signup.html'];
+    
+    // Admin-only pages
+    const adminPages = ['/admin-dashboard.html'];
+    
+    if (protectedPages.includes(currentPath) && !token) {
+        // Redirect to login if trying to access protected page without token
+        window.location.href = '/login.html';
+    } else if (adminPages.includes(currentPath) && userData.role !== 'admin') {
+        // Redirect non-admins away from admin pages
+        window.location.href = '/dashboard.html';
+    } else if (publicPages.includes(currentPath) && token) {
+        // Redirect to appropriate dashboard if already authenticated
+        if (userData.role === 'admin') {
+            window.location.href = '/admin-dashboard.html';
+        } else {
             window.location.href = '/dashboard.html';
         }
-        
-        // Update UI based on authentication status
-        this.updateAuthUI(!!token);
     }
+    
+    // Update UI based on authentication status
+    this.updateAuthUI(!!token);
+}
 
     updateAuthUI(isAuthenticated) {
         const authButtons = document.querySelector('.auth-buttons');

@@ -205,7 +205,7 @@ await pool.execute(`
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `, ['STU001', 'student@college.edu', studentPassword, 'John', 'Doe', '+1234567890', 'Computer Science', 3, 'student', '/documents/demo_fee_receipt.pdf', '/documents/demo_aadhar.jpg', '/documents/demo_student_id.jpg']);
             // Create demo admin
-            const adminPassword = await bcrypt.hash('admin123', 12);
+            const adminPassword = await bcrypt.hash('Admin@123', 12);
             await pool.execute(`
                 INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -214,7 +214,7 @@ await pool.execute(`
             console.log('✅ Demo users created successfully');
             console.log('📝 Demo Credentials:');
             console.log('   Student: student@college.edu / student123');
-            console.log('   Admin: admin@college.edu / admin123');
+            console.log('   Admin: admin@college.edu / Admin@123');
         }
     } catch (error) {
         if (!error.message.includes('Duplicate entry')) {

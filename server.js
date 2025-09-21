@@ -11,6 +11,7 @@ const { initializeDatabase, testConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/items');
 const claimRoutes = require('./routes/claims');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -72,6 +73,7 @@ app.use('/views', express.static('views'));
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/claims', claimRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve HTML files
 app.get('/', (req, res) => {
@@ -108,6 +110,10 @@ app.get('/item-details.html', (req, res) => {
 
 app.get('/claim-item.html', (req, res) => {  // ADD THIS ENTIRE ROUTE
     res.sendFile(path.join(__dirname, 'views', 'claim-item.html'));
+});
+
+app.get('/admin-dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'admin-dashboard.html'));
 });
 
 app.get('/test-report.html', (req, res) => {

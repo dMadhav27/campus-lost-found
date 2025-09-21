@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Campus Lost & Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            background: var(--dark-color);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .admin-logo {
+            text-align: center;
+            padding: 0 1rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .admin-nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .admin-nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .admin-nav-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-left-color: var(--primary-color);
+        }
+
+        .admin-nav-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+        }
+
+        .admin-main {
+            background: var(--gray-light);
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gray-border);
+            border-radius: 5px;
+            width: 250px;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            border: 1px solid var(--gray-border);
+            border-radius: 5px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-border);
+        }
+
+        .table th {
+            background: var(--gray-light);
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-verified {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-unverified {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-admin {
+            background: rgba(147, 51, 234, 0.1);
+            color: #9333ea;
+        }
+
+        .badge-student {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .badge-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-claimed {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-lost {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .badge-found {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin: 0 0.25rem;
+        }
+
+        .action-btn-verify {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .action-btn-unverify {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .action-btn-delete {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gray-border);
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-medium);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-sidebar {
+                display: none;
+            }
+            
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="admin-sidebar">
+            <div class="admin-logo">
+                <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+            </div>
+            <ul class="admin-nav">
+                <li class="admin-nav-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    Dashboard
+                </li>
+                <li class="admin-nav-item" onclick="showSection('users')">
+                    <i class="fas fa-users"></i>
+                    Users
+                </li>
+                <li class="admin-nav-item" onclick="showSection('items')">
+                    <i class="fas fa-box"></i>
+                    Items
+                </li>
+                <li class="admin-nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <div class="admin-header">
+                <h1 id="sectionTitle">Dashboard</h1>
+                <div>
+                    <span>Welcome, Admin</span>
+                    <button class="btn btn-outline" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="admin-section active" id="dashboard-section">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="loading">Loading statistics...</div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div class="admin-section" id="users-section">
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>User Management</h3>
+                        <span id="userCount">0 users</span>
+                    </div>
+                    
+                    <div style="padding: 1rem;">
+                        <div class="table-controls">
+                            <input type="text" class="search-input" placeholder="Search users..." id="userSearch">
+                            <select class="filter-select" id="userRoleFilter">
+                                <option value="">All Roles</option>
+                                <option value="student">Students</option>
+                                <option value="admin">Admins</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadUsers()">
+                                <i class="fas fa-refresh"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        
+                        <div id="usersTable" class="loading">Loading users...</div>
+                        <div id="usersPagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Section -->
+            <div class="admin-section" id="items-section">
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3>Item Management</h3>
+                        <span id="itemCount">0 items</span>
+                    </div>
+                    
+                    <div style="padding: 1rem;">
+                        <div class="table-controls">
+                            <input type="text" class="search-input" placeholder="Search items..." id="itemSearch">
+                            <select class="filter-select" id="itemTypeFilter">
+                                <option value="">All Types</option>
+                                <option value="lost">Lost</option>
+                                <option value="found">Found</option>
+                            </select>
+                            <select class="filter-select" id="itemStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="claimed">Claimed</option>
+                                <option value="returned">Returned</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadItems()">
+                                <i class="fas fa-refresh"></i>
+                                Refresh
+                            </button>
+                        </div>
+                        
+                        <div id="itemsTable" class="loading">Loading items...</div>
+                        <div id="itemsPagination" class="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSection = 'dashboard';
+        let currentUserPage = 1;
+        let currentItemPage = 1;
+
+        // Initialize admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAuth();
+            loadDashboardStats();
+            setupEventListeners();
+        });
+
+        function checkAdminAuth() {
+            const token = localStorage.getItem('authToken');
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            
+            if (!token || userData.role !== 'admin') {
+                window.location.href = '/login.html';
+                return;
+            }
+        }
+
+        function setupEventListeners() {
+            // Search inputs
+            document.getElementById('userSearch').addEventListener('input', debounce(loadUsers, 500));
+            document.getElementById('itemSearch').addEventListener('input', debounce(loadItems, 500));
+            
+            // Filter selects
+            document.getElementById('userRoleFilter').addEventListener('change', loadUsers);
+            document.getElementById('itemTypeFilter').addEventListener('change', loadItems);
+            document.getElementById('itemStatusFilter').addEventListener('change', loadItems);
+        }
+
+        function showSection(section) {
+            // Update active nav item
+            document.querySelectorAll('.admin-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(section + '-section').classList.add('active');
+            
+            // Update title
+            const titles = {
+                dashboard: 'Dashboard',
+                users: 'User Management',
+                items: 'Item Management'
+            };
+            document.getElementById('sectionTitle').textContent = titles[section];
+            
+            currentSection = section;
+
+            // Load section data
+            if (section === 'users') {
+                loadUsers();
+            } else if (section === 'items') {
+                loadItems();
+            }
+        }
+
+        async function loadDashboardStats() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/admin/dashboard-stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayStats(result.stats);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                document.getElementById('statsGrid').innerHTML = '<div class="error">Failed to load statistics</div>';
+            }
+        }
+
+        function displayStats(stats) {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.users.total_users}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.users.verified_users}</div>
+                    <div class="stat-label">Verified Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.items.total_items}</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.items.active_items}</div>
+                    <div class="stat-label">Active Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.items.lost_items}</div>
+                    <div class="stat-label">Lost Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.items.found_items}</div>
+                    <div class="stat-label">Found Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.claims.total_claims}</div>
+                    <div class="stat-label">Total Claims</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.claims.pending_claims}</div>
+                    <div class="stat-label">Pending Claims</div>
+                </div>
+            `;
+        }
+
+        async function loadUsers(page = 1) {
+            try {
+                const search = document.getElementById('userSearch').value;
+                const role = document.getElementById('userRoleFilter').value;
+                
+                const params = new URLSearchParams({
+                    page,
+                    limit: 10,
+                    search,
+                    role
+                });
+
+                const response = await makeAuthenticatedRequest(`/api/admin/users?${params}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayUsers(result.users);
+                    displayUserPagination(result.pagination);
+                    document.getElementById('userCount').textContent = `${result.pagination.totalUsers} users`;
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersTable').innerHTML = '<div class="error">Failed to load users</div>';
+            }
+        }
+
+        function displayUsers(users) {
+            const table = document.getElementById('usersTable');
+            
+            if (users.length === 0) {
+                table.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--gray-medium);">No users found</div>';
+                return;
+            }
+
+            const tableHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Student ID</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Items</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div class="user-avatar">${user.first_name[0]}${user.last_name[0]}</div>
+                                        <div>
+                                            <div style="font-weight: 600;">${user.first_name} ${user.last_name}</div>
+                                            <div style="font-size: 0.85rem; color: var(--gray-medium);">${user.department || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${user.student_id}</td>
+                                <td>${user.email}</td>
+                                <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                                <td><span class="badge badge-${user.is_verified ? 'verified' : 'unverified'}">${user.is_verified ? 'Verified' : 'Unverified'}</span></td>
+                                <td>${user.total_items || 0}</td>
+                                <td>
+                                    ${user.role !== 'admin' ? `
+                                        <button class="action-btn action-btn-${user.is_verified ? 'unverify' : 'verify'}" onclick="toggleUserVerification(${user.user_id}, ${!user.is_verified})">
+                                            ${user.is_verified ? 'Unverify' : 'Verify'}
+                                        </button>
+                                        <button class="action-btn action-btn-delete" onclick="deleteUser(${user.user_id}, '${user.first_name} ${user.last_name}')">
+                                            Delete
+                                        </button>
+                                    ` : '<span style="color: var(--gray-medium);">Protected</span>'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            table.innerHTML = tableHTML;
+        }
+
+        function displayUserPagination(pagination) {
+            const container = document.getElementById('usersPagination');
+            
+            if (pagination.totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const { currentPage, totalPages } = pagination;
+            let paginationHTML = '';
+
+            // Previous button
+            paginationHTML += `
+                <button ${currentPage <= 1 ? 'disabled' : ''} onclick="loadUsers(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            // Page numbers
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                paginationHTML += `
+                    <button class="${i === currentPage ? 'active' : ''}" onclick="loadUsers(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            // Next button
+            paginationHTML += `
+                <button ${currentPage >= totalPages ? 'disabled' : ''} onclick="loadUsers(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            container.innerHTML = paginationHTML;
+        }
+
+        async function loadItems(page = 1) {
+            try {
+                const search = document.getElementById('itemSearch').value;
+                const type = document.getElementById('itemTypeFilter').value;
+                const status = document.getElementById('itemStatusFilter').value;
+                
+                const params = new URLSearchParams({
+                    page,
+                    limit: 10,
+                    search,
+                    type,
+                    status
+                });
+
+                const response = await makeAuthenticatedRequest(`/api/admin/items?${params}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayItems(result.items);
+                    displayItemPagination(result.pagination);
+                    document.getElementById('itemCount').textContent = `${result.pagination.totalItems} items`;
+                }
+            } catch (error) {
+                console.error('Error loading items:', error);
+                document.getElementById('itemsTable').innerHTML = '<div class="error">Failed to load items</div>';
+            }
+        }
+
+        function displayItems(items) {
+            const table = document.getElementById('itemsTable');
+            
+            if (items.length === 0) {
+                table.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--gray-medium);">No items found</div>';
+                return;
+            }
+
+            const tableHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Type</th>
+                            <th>Reporter</th>
+                            <th>Status</th>
+                            <th>Verified</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(item => `
+                            <tr>
+                                <td>
+                                    <div>
+                                        <div style="font-weight: 600;">${item.title}</div>
+                                        <div style="font-size: 0.85rem; color: var(--gray-medium);">${item.description.substring(0, 50)}...</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-${item.type}">${item.type}</span></td>
+                                <td>
+                                    <div>
+                                        <div style="font-weight: 600;">${item.reporter_name || 'Unknown'}</div>
+                                        <div style="font-size: 0.85rem; color: var(--gray-medium);">${item.reporter_email || 'N/A'}</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-${item.status}">${item.status}</span></td>
+                                <td><span class="badge badge-${item.is_verified ? 'verified' : 'unverified'}">${item.is_verified ? 'Yes' : 'No'}</span></td>
+                                <td>${new Date(item.created_at).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="action-btn action-btn-${item.is_verified ? 'unverify' : 'verify'}" onclick="toggleItemVerification(${item.item_id}, ${!item.is_verified})">
+                                        ${item.is_verified ? 'Unverify' : 'Verify'}
+                                    </button>
+                                    <button class="action-btn action-btn-delete" onclick="deleteItem(${item.item_id}, '${item.title}')">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            table.innerHTML = tableHTML;
+        }
+
+        function displayItemPagination(pagination) {
+            const container = document.getElementById('itemsPagination');
+            
+            if (pagination.totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const { currentPage, totalPages } = pagination;
+            let paginationHTML = '';
+
+            // Previous button
+            paginationHTML += `
+                <button ${currentPage <= 1 ? 'disabled' : ''} onclick="loadItems(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            // Page numbers
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                paginationHTML += `
+                    <button class="${i === currentPage ? 'active' : ''}" onclick="loadItems(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            // Next button
+            paginationHTML += `
+                <button ${currentPage >= totalPages ? 'disabled' : ''} onclick="loadItems(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            container.innerHTML = paginationHTML;
+        }
+
+        async function toggleUserVerification(userId, isVerified) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/admin/users/${userId}/verify`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_verified: isVerified })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadUsers(currentUserPage);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error updating user verification:', error);
+                alert('Failed to update user verification');
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await makeAuthenticatedRequest(`/api/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadUsers(currentUserPage);
+                    loadDashboardStats(); // Refresh stats
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user');
+            }
+        }
+
+        async function toggleItemVerification(itemId, isVerified) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/admin/items/${itemId}/verify`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_verified: isVerified })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadItems(currentItemPage);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error updating item verification:', error);
+                alert('Failed to update item verification');
+            }
+        }
+
+        async function deleteItem(itemId, itemTitle) {
+            if (!confirm(`Are you sure you want to delete item "${itemTitle}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await makeAuthenticatedRequest(`/api/admin/items/${itemId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    loadItems(currentItemPage);
+                    loadDashboardStats(); // Refresh stats
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                alert('Failed to delete item');
+            }
+        }
+
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            return fetch(url, {
+                ...options,
+                headers
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            window.location.href = '/login.html';
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>

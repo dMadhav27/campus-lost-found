@@ -218,6 +218,9 @@ router.post('/', authenticateToken, upload.array('images', 5), async (req, res) 
 // @route   GET /api/items
 // @desc    Get all items with filters (show all items - verified and unverified)
 // @access  Public
+// @route   GET /api/items
+// @desc    Get all items with filters (show all items - verified and unverified)
+// @access  Public
 router.get('/', async (req, res) => {
     try {
         const {
@@ -237,7 +240,7 @@ router.get('/', async (req, res) => {
         const limitNum = parseInt(limit) || 12;
         const offsetNum = (pageNum - 1) * limitNum;
         
-        let whereConditions = []; // Remove verification requirement - show all items
+        let whereConditions = []; // Show all items regardless of verification
         let queryParams = [];
 
         // Add filters
@@ -346,6 +349,9 @@ router.get('/', async (req, res) => {
 // @route   GET /api/items/:id
 // @desc    Get single item by ID
 // @access  Public
+// @route   GET /api/items/:id
+// @desc    Get single item by ID
+// @access  Public
 router.get('/:id', async (req, res) => {
     try {
         const itemId = req.params.id;
@@ -356,7 +362,7 @@ router.get('/:id', async (req, res) => {
             await pool.execute('UPDATE items SET view_count = COALESCE(view_count, 0) + 1 WHERE item_id = ?', [itemId]);
         }
 
-        // Get item details
+        // Get item details - Remove verification requirement
         const [items] = await pool.execute(`
             SELECT 
                 i.*,
@@ -365,7 +371,7 @@ router.get('/:id', async (req, res) => {
                 u.phone as reporter_phone
             FROM items i
             LEFT JOIN users u ON i.reporter_id = u.user_id
-            WHERE i.item_id = ? AND i.is_verified = TRUE
+            WHERE i.item_id = ?
         `, [itemId]);
 
         if (items.length === 0) {

@@ -141,6 +141,18 @@
             50% { transform: scale(1.05); }
         }
         
+        .pending-review-badge {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background: var(--warning-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
         .item-content {
             padding: 1.5rem;
         }
@@ -861,6 +873,11 @@
                             `<div class="match-found-badge">
                                 <i class="fas fa-check-circle"></i>
                                 Match Found
+                             </div>` : ''
+                        }
+                        ${!item.is_verified ? 
+                            `<div class="pending-review-badge">
+                                Pending Review
                              </div>` : ''
                         }
                     </div>

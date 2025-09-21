@@ -33,12 +33,12 @@ router.post('/', authenticateToken, async (req, res) => {
             });
         }
 
-        // Get the item details
+        // Get the item details - Remove verification requirement
         const [items] = await pool.execute(`
             SELECT i.*, u.user_id as item_owner_id, u.first_name, u.last_name, u.email
             FROM items i
             JOIN users u ON i.reporter_id = u.user_id
-            WHERE i.item_id = ? AND i.is_verified = TRUE AND i.status = 'active'
+            WHERE i.item_id = ? AND i.status = 'active'
         `, [itemId]);
 
         if (items.length === 0) {

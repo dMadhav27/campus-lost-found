@@ -7,17 +7,230 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .document-upload-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .document-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .document-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .document-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .document-info p {
+            margin: 0;
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+        
+        .document-upload {
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--gray-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: white;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .upload-area.uploaded {
+            border-color: var(--success-color);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--gray-medium);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-text {
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .upload-hint {
+            font-size: 0.85rem;
+            color: var(--gray-medium);
+        }
+        
+        .file-preview {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .file-preview.show {
+            display: flex;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--success-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .file-size {
+            font-size: 0.85rem;
+            color: var(--gray-medium);
+        }
+        
+        .remove-file {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-file:hover {
+            transform: scale(1.1);
+        }
+        
+        .document-requirements {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .document-requirements h5 {
+            color: var(--warning-color);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .document-requirements ul {
+            margin: 0;
+            padding-left: 1rem;
+            color: var(--gray-medium);
+            font-size: 0.85rem;
+        }
+        
+        .document-requirements li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--gray-border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .auth-card {
+            max-width: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .document-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .auth-card {
+                margin: 1rem;
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-card fade-in" style="max-width: 500px;">
+        <div class="auth-card fade-in">
             <div class="auth-header">
                 <i class="fas fa-user-plus" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.9;"></i>
                 <h1 class="auth-title">Join Our Community</h1>
-                <p class="auth-subtitle">Create your verified student account</p>
+                <p class="auth-subtitle">Create your verified student account with document verification</p>
             </div>
 
-            <form class="auth-form" id="signupForm">
+            <form class="auth-form" id="signupForm" enctype="multipart/form-data">
+                <!-- Personal Information -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="firstName" class="form-label">
@@ -97,6 +310,119 @@
                     </div>
                 </div>
 
+                <!-- Document Upload Section -->
+                <div class="document-upload-section">
+                    <div class="document-header">
+                        <div class="document-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <div class="document-info">
+                            <h4>Document Verification Required</h4>
+                            <p>Upload required documents for account verification and enhanced security</p>
+                        </div>
+                    </div>
+
+                    <!-- Fee Receipt Upload -->
+                    <div class="document-upload">
+                        <label class="form-label">
+                            Fee Receipt (Current Academic Year) <span class="required">*</span>
+                        </label>
+                        <div class="upload-area" id="feeReceiptUpload">
+                            <div class="upload-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="upload-text">Click to upload Fee Receipt</div>
+                            <div class="upload-hint">PDF format only, max 10MB</div>
+                        </div>
+                        <input type="file" id="feeReceipt" name="feeReceipt" accept=".pdf" style="display: none;" required>
+                        <div class="file-preview" id="feeReceiptPreview">
+                            <div class="file-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name"></div>
+                                <div class="file-size"></div>
+                            </div>
+                            <button type="button" class="remove-file" onclick="removeFile('feeReceipt')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="feeReceiptError"></div>
+                    </div>
+
+                    <!-- Aadhar Card Upload -->
+                    <div class="document-upload">
+                        <label class="form-label">
+                            Aadhar Card <span class="required">*</span>
+                        </label>
+                        <div class="upload-area" id="aadharCardUpload">
+                            <div class="upload-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="upload-text">Click to upload Aadhar Card</div>
+                            <div class="upload-hint">JPG, PNG format only, max 10MB</div>
+                        </div>
+                        <input type="file" id="aadharCard" name="aadharCard" accept=".jpg,.jpeg,.png" style="display: none;" required>
+                        <div class="file-preview" id="aadharCardPreview">
+                            <div class="file-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name"></div>
+                                <div class="file-size"></div>
+                            </div>
+                            <button type="button" class="remove-file" onclick="removeFile('aadharCard')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="aadharCardError"></div>
+                    </div>
+
+                    <!-- Student ID Card Upload -->
+                    <div class="document-upload">
+                        <label class="form-label">
+                            Student ID Card <span class="required">*</span>
+                        </label>
+                        <div class="upload-area" id="studentIdCardUpload">
+                            <div class="upload-icon">
+                                <i class="fas fa-address-card"></i>
+                            </div>
+                            <div class="upload-text">Click to upload Student ID Card</div>
+                            <div class="upload-hint">JPG, PNG format only, max 10MB</div>
+                        </div>
+                        <input type="file" id="studentIdCard" name="studentIdCard" accept=".jpg,.jpeg,.png" style="display: none;" required>
+                        <div class="file-preview" id="studentIdCardPreview">
+                            <div class="file-icon">
+                                <i class="fas fa-address-card"></i>
+                            </div>
+                            <div class="file-info">
+                                <div class="file-name"></div>
+                                <div class="file-size"></div>
+                            </div>
+                            <button type="button" class="remove-file" onclick="removeFile('studentIdCard')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="error-message" id="studentIdCardError"></div>
+                    </div>
+
+                    <div class="document-requirements">
+                        <h5>
+                            <i class="fas fa-info-circle"></i>
+                            Document Requirements
+                        </h5>
+                        <ul>
+                            <li><strong>Fee Receipt:</strong> Current academic year fee receipt in PDF format</li>
+                            <li><strong>Aadhar Card:</strong> Clear photo of Aadhar card (front side preferred)</li>
+                            <li><strong>Student ID Card:</strong> Clear photo of college-issued student ID card</li>
+                            <li>All documents must be clearly readable and not blurry</li>
+                            <li>Maximum file size: 10MB per document</li>
+                            <li>Your documents will be securely stored and used only for verification</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Password Section -->
                 <div class="form-group">
                     <label for="password" class="form-label">
                         Password <span class="required">*</span>
@@ -130,6 +456,11 @@
                     </ul>
                 </div>
 
+                <!-- Progress Bar -->
+                <div class="progress-bar" id="uploadProgress">
+                    <div class="progress-fill"></div>
+                </div>
+
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
                     <div class="loading-spinner"></div>
                     <i class="fas fa-user-plus"></i>
@@ -149,5 +480,287 @@
     </a>
 
     <script src="/js/main.js"></script>
+    <script>
+        // Document upload handling
+        let uploadedFiles = {
+            feeReceipt: null,
+            aadharCard: null,
+            studentIdCard: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDocumentUploads();
+        });
+
+        function setupDocumentUploads() {
+            const documentTypes = ['feeReceipt', 'aadharCard', 'studentIdCard'];
+            
+            documentTypes.forEach(type => {
+                const uploadArea = document.getElementById(type + 'Upload');
+                const fileInput = document.getElementById(type);
+                const preview = document.getElementById(type + 'Preview');
+                const errorDiv = document.getElementById(type + 'Error');
+                
+                // Click to upload
+                uploadArea.addEventListener('click', () => fileInput.click());
+                
+                // File selection
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        validateAndPreviewFile(type, file);
+                    }
+                });
+                
+                // Drag and drop
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    
+                    const file = e.dataTransfer.files[0];
+                    if (file) {
+                        fileInput.files = e.dataTransfer.files;
+                        validateAndPreviewFile(type, file);
+                    }
+                });
+            });
+        }
+
+        function validateAndPreviewFile(type, file) {
+            const uploadArea = document.getElementById(type + 'Upload');
+            const preview = document.getElementById(type + 'Preview');
+            const errorDiv = document.getElementById(type + 'Error');
+            
+            // Clear previous errors
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            
+            // Validate file type
+            let isValidType = false;
+            if (type === 'feeReceipt') {
+                isValidType = file.type === 'application/pdf';
+                if (!isValidType) {
+                    showFileError(type, 'Fee receipt must be a PDF file');
+                    return;
+                }
+            } else {
+                isValidType = ['image/jpeg', 'image/jpg', 'image/png'].includes(file.type);
+                if (!isValidType) {
+                    showFileError(type, 'ID cards must be JPG or PNG files');
+                    return;
+                }
+            }
+            
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showFileError(type, 'File size must be less than 10MB');
+                return;
+            }
+            
+            // Store file and show preview
+            uploadedFiles[type] = file;
+            showFilePreview(type, file);
+            
+            // Update upload area appearance
+            uploadArea.classList.add('uploaded');
+        }
+
+        function showFileError(type, message) {
+            const errorDiv = document.getElementById(type + 'Error');
+            const fileInput = document.getElementById(type);
+            
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            fileInput.value = '';
+            uploadedFiles[type] = null;
+        }
+
+        function showFilePreview(type, file) {
+            const preview = document.getElementById(type + 'Preview');
+            const fileName = preview.querySelector('.file-name');
+            const fileSize = preview.querySelector('.file-size');
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            preview.classList.add('show');
+        }
+
+        function removeFile(type) {
+            const uploadArea = document.getElementById(type + 'Upload');
+            const preview = document.getElementById(type + 'Preview');
+            const fileInput = document.getElementById(type);
+            const errorDiv = document.getElementById(type + 'Error');
+            
+            uploadedFiles[type] = null;
+            fileInput.value = '';
+            preview.classList.remove('show');
+            uploadArea.classList.remove('uploaded');
+            errorDiv.style.display = 'none';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Form submission with document validation
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate all documents are uploaded
+            const requiredDocs = ['feeReceipt', 'aadharCard', 'studentIdCard'];
+            const missingDocs = requiredDocs.filter(type => !uploadedFiles[type]);
+            
+            if (missingDocs.length > 0) {
+                showMessage('error', 'Please upload all required documents: ' + missingDocs.map(d => d.replace(/([A-Z])/g, ' $1').toLowerCase()).join(', '));
+                return;
+            }
+            
+            // Validate form fields
+            if (!validateForm()) {
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = progressBar.querySelector('.progress-fill');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            if (spinner) spinner.style.display = 'block';
+            if (btnText) btnText.textContent = 'Creating Account...';
+            progressBar.style.display = 'block';
+            
+            try {
+                const formData = new FormData(e.target);
+                
+                // Progress simulation
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90;
+                    progressFill.style.width = progress + '%';
+                }, 200);
+                
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', result.message);
+                    
+                    // Redirect after a delay
+                    setTimeout(() => {
+                        window.location.href = '/login.html?registered=true';
+                    }, 3000);
+                } else {
+                    showMessage('error', result.error);
+                }
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                showMessage('error', 'Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (btnText) btnText.textContent = 'Create Account';
+                
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 2000);
+            }
+        });
+
+        function validateForm() {
+            const requiredFields = ['firstName', 'lastName', 'studentId', 'email', 'password', 'confirmPassword'];
+            
+            for (const field of requiredFields) {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    showMessage('error', `${field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')} is required`);
+                    input.focus();
+                    return false;
+                }
+            }
+            
+            // Validate email
+            const email = document.getElementById('email').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('error', 'Please enter a valid email address');
+                return false;
+            }
+            
+            // Validate password
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password.length < 6) {
+                showMessage('error', 'Password must be at least 6 characters long');
+                return false;
+            }
+            
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+            if (!passwordRegex.test(password)) {
+                showMessage('error', 'Password must contain uppercase, lowercase, and number');
+                return false;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('error', 'Passwords do not match');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function showMessage(type, message) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Create new message
+            const messageEl = document.createElement('div');
+            messageEl.className = `message message-${type} show fade-in`;
+            messageEl.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            // Insert at top of form
+            const form = document.querySelector('.auth-form');
+            form.insertBefore(messageEl, form.firstChild);
+            
+            // Auto-hide after 10 seconds for long messages
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
+            }, 10000);
+        }
+    </script>
 </body>
 </html>

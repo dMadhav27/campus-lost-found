@@ -198,12 +198,12 @@ async function createDemoUsers() {
             console.log('🔄 Creating demo users...');
             
             // Create demo student
-            const studentPassword = await bcrypt.hash('student123', 12);
-            await pool.execute(`
-                INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `, ['STU001', 'student@college.edu', studentPassword, 'John', 'Doe', '+1234567890', 'Computer Science', 3, 'student']);
-            
+            // In the createDemoUsers function, update the student creation:
+const studentPassword = await bcrypt.hash('student123', 12);
+await pool.execute(`
+    INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study, role, fee_receipt, aadhar_card, student_id_card)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`, ['STU001', 'student@college.edu', studentPassword, 'John', 'Doe', '+1234567890', 'Computer Science', 3, 'student', '/documents/demo_fee_receipt.pdf', '/documents/demo_aadhar.jpg', '/documents/demo_student_id.jpg']);
             // Create demo admin
             const adminPassword = await bcrypt.hash('admin123', 12);
             await pool.execute(`

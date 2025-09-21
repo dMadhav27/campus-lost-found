@@ -14,11 +14,18 @@ const itemRoutes = require('./routes/items');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Create uploads directory if it doesn't exist
+// Create uploads and documents directories if they don't exist
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
+const documentsDir = path.join(__dirname, 'public', 'documents');
+
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
     console.log('📁 Created uploads directory');
+}
+
+if (!fs.existsSync(documentsDir)) {
+    fs.mkdirSync(documentsDir, { recursive: true });
+    console.log('📁 Created documents directory');
 }
 
 // Security middleware - Updated CSP to allow inline scripts

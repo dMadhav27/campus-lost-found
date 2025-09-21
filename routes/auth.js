@@ -2,10 +2,78 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { pool } = require('../config/database');
 const { authenticateToken, validateInput } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Create documents directory if it doesn't exist
+const documentsDir = path.join(__dirname, '..', 'public', 'documents');
+if (!fs.existsSync(documentsDir)) {
+    fs.mkdirSync(documentsDir, { recursive: true });
+    console.log('📁 Created documents directory');
+}
+
+// Configure multer for document uploads
+const documentStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, documentsDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        let prefix = '';
+        
+        switch (file.fieldname) {
+            case 'feeReceipt':
+                prefix = 'fee-receipt';
+                break;
+            case 'aadharCard':
+                prefix = 'aadhar';
+                break;
+            case 'studentIdCard':
+                prefix = 'student-id';
+                break;
+            default:
+                prefix = 'document';
+        }
+        
+        cb(null, `${prefix}-${uniqueSuffix}${ext}`);
+    }
+});
+
+const documentUpload = multer({
+    storage: documentStorage,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.fieldname === 'feeReceipt') {
+            // Only PDF for fee receipt
+            if (file.mimetype === 'application/pdf') {
+                cb(null, true);
+            } else {
+                cb(new Error('Fee receipt must be a PDF file'), false);
+            }
+        } else if (file.fieldname === 'aadharCard' || file.fieldname === 'studentIdCard') {
+            // Only images for ID cards
+            const allowedTypes = /jpeg|jpg|png/;
+            const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+            const mimetype = allowedTypes.test(file.mimetype);
+            
+            if (mimetype && extname) {
+                cb(null, true);
+            } else {
+                cb(new Error('ID cards must be JPG, JPEG, or PNG files'), false);
+            }
+        } else {
+            cb(new Error('Invalid file field'), false);
+        }
+    }
+});
 
 // Rate limiting for auth endpoints
 const authLimiter = rateLimit({
@@ -18,15 +86,6 @@ const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
-
-// Approved email domains for student verification
-const APPROVED_DOMAINS = ['college.edu', 'university.edu', 'school.ac.in', 'student.edu'];
-
-// Helper function to validate email domain
-function isValidStudentEmail(email) {
-    const domain = email.split('@')[1];
-    return APPROVED_DOMAINS.includes(domain);
-}
 
 // Helper function to generate JWT token
 function generateToken(user) {
@@ -41,10 +100,27 @@ function generateToken(user) {
     );
 }
 
+// Helper function to clean up uploaded files
+function cleanupFiles(files) {
+    Object.values(files).forEach(fileArray => {
+        if (Array.isArray(fileArray)) {
+            fileArray.forEach(file => {
+                if (file && file.path && fs.existsSync(file.path)) {
+                    fs.unlinkSync(file.path);
+                }
+            });
+        }
+    });
+}
+
 // @route   POST /api/auth/signup
-// @desc    Register new student
+// @desc    Register new student with document verification
 // @access  Public
-router.post('/signup', authLimiter, validateInput(['studentId', 'email', 'password', 'firstName', 'lastName']), async (req, res) => {
+router.post('/signup', authLimiter, documentUpload.fields([
+    { name: 'feeReceipt', maxCount: 1 },
+    { name: 'aadharCard', maxCount: 1 },
+    { name: 'studentIdCard', maxCount: 1 }
+]), async (req, res) => {
     try {
         const {
             studentId,
@@ -57,28 +133,52 @@ router.post('/signup', authLimiter, validateInput(['studentId', 'email', 'passwo
             yearOfStudy
         } = req.body;
 
+        // Validate required fields
+        const requiredFields = ['studentId', 'email', 'password', 'firstName', 'lastName'];
+        for (const field of requiredFields) {
+            if (!req.body[field] || req.body[field].trim() === '') {
+                cleanupFiles(req.files || {});
+                return res.status(400).json({
+                    success: false,
+                    error: `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+                });
+            }
+        }
+
+        // Validate document uploads
+        if (!req.files || !req.files.feeReceipt || !req.files.aadharCard || !req.files.studentIdCard) {
+            cleanupFiles(req.files || {});
+            return res.status(400).json({
+                success: false,
+                error: 'All documents are required: Fee Receipt (PDF), Aadhar Card (JPG/PNG), Student ID Card (JPG/PNG)'
+            });
+        }
+
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
+            cleanupFiles(req.files);
             return res.status(400).json({
                 success: false,
                 error: 'Invalid email format'
             });
         }
 
-        // Validate email domain (commented out for development)
-        // if (!isValidStudentEmail(email)) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         error: 'Please use your official college email address'
-        //     });
-        // }
-
         // Validate password strength
         if (password.length < 6) {
+            cleanupFiles(req.files);
             return res.status(400).json({
                 success: false,
                 error: 'Password must be at least 6 characters long'
+            });
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+        if (!passwordRegex.test(password)) {
+            cleanupFiles(req.files);
+            return res.status(400).json({
+                success: false,
+                error: 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
             });
         }
 
@@ -89,6 +189,7 @@ router.post('/signup', authLimiter, validateInput(['studentId', 'email', 'passwo
         );
 
         if (existingUsers.length > 0) {
+            cleanupFiles(req.files);
             return res.status(400).json({
                 success: false,
                 error: 'Student ID or email already registered'
@@ -99,15 +200,27 @@ router.post('/signup', authLimiter, validateInput(['studentId', 'email', 'passwo
         const saltRounds = 12;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
-        // Insert new user
+        // Get file paths
+        const feeReceiptPath = `/documents/${req.files.feeReceipt[0].filename}`;
+        const aadharCardPath = `/documents/${req.files.aadharCard[0].filename}`;
+        const studentIdCardPath = `/documents/${req.files.studentIdCard[0].filename}`;
+
+        // Insert new user with documents
         const [result] = await pool.execute(`
-            INSERT INTO users (student_id, email, password_hash, first_name, last_name, phone, department, year_of_study)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [studentId, email, passwordHash, firstName, lastName, phone || null, department || null, yearOfStudy || null]);
+            INSERT INTO users (
+                student_id, email, password_hash, first_name, last_name, phone, 
+                department, year_of_study, fee_receipt, aadhar_card, student_id_card
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+            studentId, email, passwordHash, firstName, lastName, phone || null, 
+            department || null, yearOfStudy || null, feeReceiptPath, aadharCardPath, 
+            studentIdCardPath
+        ]);
 
         // Get the created user
         const [newUser] = await pool.execute(
-            'SELECT user_id, student_id, email, first_name, last_name, role FROM users WHERE user_id = ?',
+            'SELECT user_id, student_id, email, first_name, last_name, role, is_verified FROM users WHERE user_id = ?',
             [result.insertId]
         );
 
@@ -118,7 +231,7 @@ router.post('/signup', authLimiter, validateInput(['studentId', 'email', 'passwo
 
         res.status(201).json({
             success: true,
-            message: 'Registration successful!',
+            message: 'Registration successful! Your account has been created with document verification.',
             token,
             user: {
                 id: newUser[0].user_id,
@@ -133,10 +246,22 @@ router.post('/signup', authLimiter, validateInput(['studentId', 'email', 'passwo
     } catch (error) {
         console.error('Registration error:', error);
         
+        // Clean up uploaded files on error
+        if (req.files) {
+            cleanupFiles(req.files);
+        }
+        
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(400).json({
                 success: false,
                 error: 'Student ID or email already registered'
+            });
+        }
+
+        if (error.message.includes('must be a PDF') || error.message.includes('must be JPG')) {
+            return res.status(400).json({
+                success: false,
+                error: error.message
             });
         }
 
@@ -169,14 +294,6 @@ router.post('/login', authLimiter, validateInput(['email', 'password']), async (
 
         const user = users[0];
 
-        // Check if account is verified
-        if (!user.is_verified) {
-            return res.status(401).json({
-                success: false,
-                error: 'Account not verified. Please contact administrator.'
-            });
-        }
-
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
@@ -186,6 +303,20 @@ router.post('/login', authLimiter, validateInput(['email', 'password']), async (
                 error: 'Invalid email or password'
             });
         }
+
+        // Check if account is verified
+        if (!user.is_verified) {
+            return res.status(401).json({
+                success: false,
+                error: 'Account not verified. Please contact administrator.'
+            });
+        }
+
+        // Update last login
+        await pool.execute(
+            'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?',
+            [user.user_id]
+        );
 
         // Generate JWT token
         const token = generateToken(user);
@@ -234,7 +365,6 @@ router.get('/me', authenticateToken, (req, res) => {
 // @desc    Logout user (client-side token removal)
 // @access  Private
 router.post('/logout', authenticateToken, (req, res) => {
-    // In a stateless JWT setup, logout is handled client-side
     console.log(`✅ User logged out: ${req.user.email}`);
     
     res.json({

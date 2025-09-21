@@ -66,6 +66,7 @@
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
             cursor: pointer;
+            position: relative;
         }
         
         .item-card:hover {
@@ -115,6 +116,29 @@
         .item-type-found {
             background: var(--success-color);
             color: white;
+        }
+        
+        .match-found-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #10b981, #6ee7b7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .item-content {
@@ -193,6 +217,40 @@
             font-weight: 600;
         }
         
+        .claim-button {
+            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .claim-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .claim-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .already-claimed {
+            background: var(--gray-medium);
+            cursor: not-allowed;
+        }
+        
         .pagination {
             display: flex;
             justify-content: center;
@@ -261,6 +319,151 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Claim Modal Styles */
+        .claim-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .claim-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .claim-modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .claim-modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .claim-modal-body {
+            padding: 2rem;
+        }
+        
+        .question-item {
+            background: var(--gray-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .question-text {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gray-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .claim-submit-btn {
+            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .claim-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .claim-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         @media (max-width: 768px) {
             .search-fields {
                 grid-template-columns: 1fr;
@@ -277,6 +480,16 @@
             .filter-tabs {
                 overflow-x: auto;
                 white-space: nowrap;
+            }
+            
+            .claim-modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+            
+            .claim-modal-header,
+            .claim-modal-body {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -379,6 +592,44 @@
         </div>
     </main>
 
+    <!-- Claim Modal -->
+    <div class="claim-modal" id="claimModal">
+        <div class="claim-modal-content">
+            <div class="claim-modal-header">
+                <button class="close-modal" onclick="closeClaimModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 style="margin: 0;">Claim This Item</h2>
+                <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Answer the security questions to verify you have this item</p>
+            </div>
+            <div class="claim-modal-body">
+                <div id="itemPreview" style="background: var(--gray-light); padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+                    <!-- Item preview will be populated -->
+                </div>
+                
+                <div id="securityQuestions">
+                    <!-- Questions will be populated by JavaScript -->
+                </div>
+                
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; padding: 1rem; margin: 1.5rem 0;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: var(--warning-color);">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Important</strong>
+                    </div>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                        Please answer honestly. False claims may result in account suspension. 
+                        If your answers match, the item owner will be notified with your contact information.
+                    </p>
+                </div>
+                
+                <button class="claim-submit-btn" id="submitClaimBtn" onclick="submitClaim()">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Claim
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/main.js"></script>
     <script>
         let currentFilters = {
@@ -392,14 +643,32 @@
         
         let categories = [];
         let locations = [];
+        let allItems = [];
+        let currentClaimingItem = null;
+        let currentUser = null;
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = await getCurrentUser();
             await loadCategories();
             await loadLocations();
             setupEventListeners();
             await loadItems();
         });
+
+        // Get current user
+        async function getCurrentUser() {
+            try {
+                const response = await makeAuthenticatedRequest('/api/auth/me');
+                if (response && response.ok) {
+                    const result = await response.json();
+                    return result.user;
+                }
+            } catch (error) {
+                console.error('Error getting current user:', error);
+            }
+            return null;
+        }
 
         // Load categories and locations
         async function loadCategories() {
@@ -474,6 +743,13 @@
                     loadItems();
                 }, 500);
             });
+
+            // Close modal on background click
+            document.getElementById('claimModal').addEventListener('click', (e) => {
+                if (e.target.id === 'claimModal') {
+                    closeClaimModal();
+                }
+            });
         }
 
         // Load items from API
@@ -498,6 +774,7 @@
                 const result = await response.json();
 
                 if (result.success) {
+                    allItems = result.items;
                     displayItems(result.items);
                     displayPagination(result.pagination);
                 } else {
@@ -551,9 +828,18 @@
             const dateFormatted = new Date(item.date_lost_found).toLocaleDateString();
             const createdFormatted = new Date(item.created_at).toLocaleDateString();
             
+            // Check if current user is the owner
+            const isOwner = currentUser && item.reporter_id === currentUser.id;
+            
+            // Check if item has verification questions
+            const hasQuestions = item.verification_questions && item.verification_questions.length > 0;
+            
+            // Check if item already has approved claims (if claims functionality is available)
+            const hasApprovedClaims = item.status === 'claimed' || item.status === 'returned';
+            
             return `
-                <div class="item-card" onclick="viewItemDetails(${item.item_id})">
-                    <div class="item-image">
+                <div class="item-card" data-item-id="${item.item_id}">
+                    <div class="item-image" onclick="viewItemDetails(${item.item_id})">
                         ${hasImage ? 
                             `<img src="${imageUrl}" alt="${item.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                              <div class="no-image" style="display: none;">
@@ -568,7 +854,13 @@
                         </div>
                         ${item.reward_amount > 0 ? 
                             `<div class="reward-badge">
-                                ${parseFloat(item.reward_amount).toFixed(2)} Reward
+                                $${parseFloat(item.reward_amount).toFixed(2)} Reward
+                             </div>` : ''
+                        }
+                        ${hasApprovedClaims ? 
+                            `<div class="match-found-badge">
+                                <i class="fas fa-check-circle"></i>
+                                Match Found
                              </div>` : ''
                         }
                     </div>
@@ -578,7 +870,7 @@
                         <div class="item-meta">
                             <div class="item-location">
                                 <i class="fas fa-map-marker-alt"></i>
-                                ${item.location_name || 'Unknown'}
+                                ${item.location || 'Unknown'}
                             </div>
                             <div class="item-date">
                                 <i class="fas fa-calendar"></i>
@@ -595,9 +887,170 @@
                                  </div>` : ''
                             }
                         </div>
+                        
+                        ${!isOwner && hasQuestions && !hasApprovedClaims ? `
+                            <button class="claim-button" onclick="event.stopPropagation(); openClaimModal(${item.item_id})">
+                                <i class="fas fa-hand-holding"></i>
+                                I Have This Item
+                            </button>
+                        ` : isOwner ? `
+                            <div style="text-align: center; padding: 1rem; color: var(--gray-medium); font-style: italic;">
+                                This is your item
+                            </div>
+                        ` : hasApprovedClaims ? `
+                            <button class="claim-button already-claimed" disabled>
+                                <i class="fas fa-check"></i>
+                                Already Claimed
+                            </button>
+                        ` : !hasQuestions ? `
+                            <div style="text-align: center; padding: 1rem; color: var(--gray-medium); font-style: italic; font-size: 0.85rem;">
+                                No verification available
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
+        }
+
+        // Open claim modal
+        function openClaimModal(itemId) {
+            const item = allItems.find(i => i.item_id === itemId);
+            if (!item) {
+                alert('Item not found');
+                return;
+            }
+
+            currentClaimingItem = item;
+            
+            // Populate item preview
+            document.getElementById('itemPreview').innerHTML = `
+                <h4 style="margin: 0 0 0.5rem 0;">${item.title}</h4>
+                <p style="margin: 0; color: var(--gray-medium);">${item.description}</p>
+            `;
+            
+            // Populate security questions
+            const questionsContainer = document.getElementById('securityQuestions');
+            const questions = item.verification_questions || [];
+            
+            questionsContainer.innerHTML = questions.map((q, index) => `
+                <div class="question-item">
+                    <div class="question-number">${index + 1}</div>
+                    <div class="question-text">${q.question}</div>
+                    <input type="text" class="answer-input" placeholder="Enter your answer..." 
+                           data-question-index="${index}" required>
+                </div>
+            `).join('');
+            
+            // Show modal
+            document.getElementById('claimModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close claim modal
+        function closeClaimModal() {
+            document.getElementById('claimModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+            currentClaimingItem = null;
+            
+            // Clear form
+            document.querySelectorAll('.answer-input').forEach(input => {
+                input.value = '';
+            });
+        }
+
+        // Submit claim
+        async function submitClaim() {
+            if (!currentClaimingItem) return;
+            
+            const answerInputs = document.querySelectorAll('.answer-input');
+            const answers = Array.from(answerInputs).map(input => input.value.trim());
+            
+            // Validate answers
+            if (answers.some(answer => answer === '')) {
+                alert('Please answer all verification questions');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitClaimBtn');
+            const originalContent = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <div class="loading-spinner" style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 0.5rem;"></div>
+                Submitting...
+            `;
+
+            try {
+                const response = await makeAuthenticatedRequest('/api/claims', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        itemId: currentClaimingItem.item_id,
+                        verificationAnswers: answers
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const isApproved = result.claim && result.claim.status === 'approved';
+                    
+                    if (isApproved) {
+                        // Show match found immediately
+                        updateItemCardWithMatch(currentClaimingItem.item_id);
+                        alert('🎉 Match Found! The item owner will be notified with your contact information.');
+                    } else {
+                        alert('Claim submitted for review. You will be notified once it\'s processed.');
+                    }
+                    
+                    closeClaimModal();
+                    
+                    // Refresh the specific item or reload items
+                    await loadItems();
+                    
+                } else {
+                    alert(result.error || 'Failed to submit claim');
+                }
+
+            } catch (error) {
+                console.error('Submit claim error:', error);
+                alert('Failed to submit claim. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalContent;
+            }
+        }
+
+        // Update item card to show match found
+        function updateItemCardWithMatch(itemId) {
+            const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
+            if (itemCard) {
+                // Add match found badge
+                const itemImage = itemCard.querySelector('.item-image');
+                if (!itemImage.querySelector('.match-found-badge')) {
+                    const matchBadge = document.createElement('div');
+                    matchBadge.className = 'match-found-badge';
+                    matchBadge.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        Match Found
+                    `;
+                    itemImage.appendChild(matchBadge);
+                }
+                
+                // Update claim button
+                const claimButton = itemCard.querySelector('.claim-button');
+                if (claimButton) {
+                    claimButton.className = 'claim-button already-claimed';
+                    claimButton.disabled = true;
+                    claimButton.innerHTML = `
+                        <i class="fas fa-check"></i>
+                        Claim Approved
+                    `;
+                }
+            }
         }
 
         // Display pagination
@@ -669,6 +1122,27 @@
         // View item details
         function viewItemDetails(itemId) {
             window.location.href = `/item-details.html?id=${itemId}`;
+        }
+
+        // Helper function for authenticated requests
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            return fetch(url, {
+                ...options,
+                headers
+            });
         }
     </script>
 </body>

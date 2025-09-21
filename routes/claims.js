@@ -20,7 +20,7 @@ function safeJsonParse(jsonString, defaultValue = null) {
 }
 
 // @route   POST /api/claims
-// @desc    Submit a claim for an item
+// @desc    Submit a claim for an item with immediate approval logic
 // @access  Private
 router.post('/', authenticateToken, async (req, res) => {
     try {
@@ -89,14 +89,29 @@ router.post('/', authenticateToken, async (req, res) => {
             });
         }
 
-        // Check answers (case-insensitive comparison)
+        // Check answers with improved matching logic
         let correctAnswers = 0;
         const answerComparisons = [];
 
         verificationQuestions.forEach((q, index) => {
             const correctAnswer = q.answer.toLowerCase().trim();
             const userAnswer = (verificationAnswers[index] || '').toLowerCase().trim();
-            const isCorrect = correctAnswer === userAnswer;
+            
+            // Improved matching: exact match or high similarity
+            let isCorrect = false;
+            
+            if (correctAnswer === userAnswer) {
+                isCorrect = true;
+            } else {
+                // Check for partial matches for certain types of answers
+                if (correctAnswer.length > 3 && userAnswer.length > 3) {
+                    // If answers are similar enough (simple similarity check)
+                    const similarity = calculateSimilarity(correctAnswer, userAnswer);
+                    if (similarity > 0.8) { // 80% similarity threshold
+                        isCorrect = true;
+                    }
+                }
+            }
             
             if (isCorrect) {
                 correctAnswers++;
@@ -106,49 +121,87 @@ router.post('/', authenticateToken, async (req, res) => {
                 question: q.question,
                 correct_answer: q.answer,
                 user_answer: verificationAnswers[index],
-                is_correct: isCorrect
+                is_correct: isCorrect,
+                similarity: calculateSimilarity(correctAnswer, userAnswer)
             });
         });
 
         // Determine claim status based on answer accuracy
         const requiredCorrect = Math.max(2, Math.ceil(verificationQuestions.length * 0.8)); // 80% or minimum 2
-        const claimStatus = correctAnswers >= requiredCorrect ? 'approved' : 'pending_verification';
+        let claimStatus = 'pending_verification';
+        
+        // If most answers are correct, approve immediately
+        if (correctAnswers >= requiredCorrect) {
+            claimStatus = 'approved';
+        } else if (correctAnswers >= Math.ceil(verificationQuestions.length * 0.6)) {
+            // If 60%+ correct, mark for manual review
+            claimStatus = 'awaiting_proof';
+        }
 
         // Create the claim
         const [claimResult] = await pool.execute(`
             INSERT INTO claims (
                 item_id, claimant_id, item_owner_id, claim_status, 
-                verification_answers, created_at
-            ) VALUES (?, ?, ?, ?, ?, NOW())
+                verification_answers, created_at,
+                ${claimStatus === 'approved' ? 'approved_at,' : ''}
+                contact_revealed
+            ) VALUES (?, ?, ?, ?, ?, NOW(), ${claimStatus === 'approved' ? 'NOW(),' : ''} ?)
         `, [
             itemId,
             req.user.user_id,
             item.item_owner_id,
             claimStatus,
-            JSON.stringify(answerComparisons)
+            JSON.stringify(answerComparisons),
+            claimStatus === 'approved' ? true : false
         ]);
 
-        // If approved, update item status
+        // If approved immediately, update item status
         if (claimStatus === 'approved') {
             await pool.execute(
                 'UPDATE items SET status = ? WHERE item_id = ?',
                 ['claimed', itemId]
             );
+            
+            // Create notification for item owner (optional - if you have notifications)
+            try {
+                await pool.execute(`
+                    INSERT INTO notifications (user_id, type, title, message, item_id, claim_id, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())
+                `, [
+                    item.item_owner_id,
+                    'claim_approved',
+                    'Item Claim Approved',
+                    `Someone has successfully claimed your ${item.type} item "${item.title}". You can now arrange the pickup.`,
+                    itemId,
+                    claimResult.insertId
+                ]);
+            } catch (notifError) {
+                console.log('Notification creation failed (table may not exist):', notifError.message);
+            }
         }
 
-        console.log(`✅ Claim submitted: User ${req.user.user_id} claimed item ${itemId} (${claimStatus})`);
+        console.log(`✅ Claim submitted: User ${req.user.user_id} claimed item ${itemId} (${claimStatus}) - ${correctAnswers}/${verificationQuestions.length} correct`);
+
+        // Prepare response message
+        let message = '';
+        if (claimStatus === 'approved') {
+            message = 'Perfect match! Your claim has been automatically approved. The item owner will be notified with your contact information.';
+        } else if (claimStatus === 'awaiting_proof') {
+            message = 'Good match! Your claim requires additional verification. Please provide proof of ownership.';
+        } else {
+            message = 'Claim submitted for review. Some answers need verification by the item owner.';
+        }
 
         res.status(201).json({
             success: true,
-            message: claimStatus === 'approved' 
-                ? 'Claim approved! The item owner will be notified with your contact information.'
-                : 'Claim submitted for review. You will be notified once it\'s processed.',
+            message: message,
             claim: {
                 claim_id: claimResult.insertId,
                 status: claimStatus,
                 correct_answers: correctAnswers,
                 total_questions: verificationQuestions.length,
-                item_title: item.title
+                item_title: item.title,
+                accuracy_percentage: Math.round((correctAnswers / verificationQuestions.length) * 100)
             }
         });
 
@@ -161,6 +214,48 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
+// Helper function to calculate string similarity
+function calculateSimilarity(str1, str2) {
+    if (str1 === str2) return 1;
+    
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1;
+    
+    const editDistance = getEditDistance(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+}
+
+// Helper function to calculate edit distance (Levenshtein distance)
+function getEditDistance(str1, str2) {
+    const matrix = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // deletion
+                );
+            }
+        }
+    }
+    
+    return matrix[str2.length][str1.length];
+}
+
 // @route   GET /api/claims/my
 // @desc    Get user's claims
 // @access  Private
@@ -172,6 +267,7 @@ router.get('/my', authenticateToken, async (req, res) => {
                 i.title as item_title,
                 i.description as item_description,
                 i.type as item_type,
+                i.status as item_status,
                 CONCAT(u.first_name, ' ', u.last_name) as item_owner_name
             FROM claims c
             JOIN items i ON c.item_id = i.item_id
@@ -303,7 +399,7 @@ router.get('/:id/contact', authenticateToken, async (req, res) => {
 });
 
 // @route   PUT /api/claims/:id/approve
-// @desc    Approve a claim (for item owners)
+// @desc    Manually approve a claim (for item owners)
 // @access  Private
 router.put('/:id/approve', authenticateToken, async (req, res) => {
     try {
@@ -327,7 +423,7 @@ router.put('/:id/approve', authenticateToken, async (req, res) => {
         // Update claim status
         await pool.execute(`
             UPDATE claims 
-            SET claim_status = 'approved', approved_at = NOW()
+            SET claim_status = 'approved', approved_at = NOW(), contact_revealed = TRUE
             WHERE claim_id = ?
         `, [claimId]);
 

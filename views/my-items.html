@@ -115,11 +115,32 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .tab.active {
             background: var(--primary-color);
             color: var(--white);
+        }
+
+        .tab-notification {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--error-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .tab-notification.show {
+            display: flex;
         }
 
         .tab-content {
@@ -172,6 +193,54 @@
         .item-type.found {
             background: #d1fae5;
             color: #065f46;
+        }
+
+        .status-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.claimed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-badge.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary-color);
+        }
+
+        .claims-badge {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .claims-badge.has-new {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .delete-btn {
@@ -263,6 +332,16 @@
             background: #d1d5db;
         }
 
+        .btn-success {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: var(--white);
+        }
+
         .empty-state {
             text-align: center;
             padding: 3rem;
@@ -320,6 +399,66 @@
             opacity: 0.5;
         }
 
+        /* Claim card specific styles */
+        .claim-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .claim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .claim-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .claim-status.approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .claim-status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .claim-status.rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .claim-answers {
+            background: var(--gray-light);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .answer-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .answer-correct {
+            color: var(--success-color);
+        }
+
+        .answer-incorrect {
+            color: var(--error-color);
+        }
+
         /* Delete confirmation modal */
         .modal {
             display: none;
@@ -352,6 +491,34 @@
             gap: 1rem;
             justify-content: center;
             margin-top: 1.5rem;
+        }
+
+        /* Claims management section */
+        .claims-section {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+            border: 2px solid rgba(16, 185, 129, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .claims-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .claims-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--success-color), #6ee7b7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
         }
 
         @media (max-width: 768px) {
@@ -403,8 +570,8 @@
 
     <div class="main-container">
         <div class="page-header">
-            <h1 class="page-title">My Items</h1>
-            <p class="page-subtitle">Manage your reported lost and found items</p>
+            <h1 class="page-title">My Items & Claims</h1>
+            <p class="page-subtitle">Manage your reported items and track your claims</p>
         </div>
 
         <!-- Statistics -->
@@ -431,10 +598,16 @@
         <div class="tabs">
             <button class="tab active" onclick="switchTab('reported')">
                 <i class="fas fa-box"></i> My Reports
+                <span class="tab-notification" id="reportsNotification">0</span>
             </button>
             <button class="tab" onclick="switchTab('claims')">
-    <i class="fas fa-hand-paper"></i> My Claims
-</button>
+                <i class="fas fa-hand-paper"></i> My Claims
+                <span class="tab-notification" id="claimsNotification">0</span>
+            </button>
+            <button class="tab" onclick="switchTab('incoming')">
+                <i class="fas fa-inbox"></i> Incoming Claims
+                <span class="tab-notification" id="incomingNotification">0</span>
+            </button>
         </div>
 
         <!-- Reported Items Tab -->
@@ -461,21 +634,34 @@
             </div>
         </div>
 
-        <!-- Add this tab content -->
-<div class="tab-content" id="claims-content">
-    <div id="loading-claims" class="loading">
-        <i class="fas fa-spinner fa-spin"></i> Loading your claims...
-    </div>
-    <div id="claims-items" class="items-grid" style="display: none;"></div>
-    <div id="empty-claims" class="empty-state" style="display: none;">
-        <i class="fas fa-hand-paper"></i>
-        <h3>No Claims Submitted</h3>
-        <p>You haven't claimed any items yet.</p>
-        <a href="/browse-items.html" class="btn btn-primary" style="margin-top: 1rem;">
-            <i class="fas fa-search"></i> Browse Items
-        </a>
-    </div>
-</div>
+        <!-- My Claims Tab -->
+        <div class="tab-content" id="claims-content">
+            <div id="loading-claims" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading your claims...
+            </div>
+            <div id="claims-items" style="display: none;"></div>
+            <div id="empty-claims" class="empty-state" style="display: none;">
+                <i class="fas fa-hand-paper"></i>
+                <h3>No Claims Submitted</h3>
+                <p>You haven't claimed any items yet.</p>
+                <a href="/browse-items.html" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-search"></i> Browse Items
+                </a>
+            </div>
+        </div>
+
+        <!-- Incoming Claims Tab -->
+        <div class="tab-content" id="incoming-content">
+            <div id="loading-incoming" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading incoming claims...
+            </div>
+            <div id="incoming-claims" style="display: none;"></div>
+            <div id="empty-incoming" class="empty-state" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <h3>No Incoming Claims</h3>
+                <p>No one has claimed your items yet.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
@@ -498,6 +684,7 @@
         let currentTab = 'reported';
         let userItems = [];
         let userClaims = [];
+        let incomingClaims = [];
         let itemToDelete = null;
 
         // Initialize page
@@ -508,14 +695,23 @@
                 return;
             }
 
-            console.log('Loading user items and claims...');
-            await loadUserItems();
-            await loadUserClaims();
+            console.log('Loading user data...');
+            await loadAllData();
         });
+
+        // Load all data
+        async function loadAllData() {
+            await Promise.all([
+                loadUserItems(),
+                loadUserClaims(),
+                loadIncomingClaims()
+            ]);
+            updateNotifications();
+        }
 
         // Load user's reported items
         async function loadUserItems() {
-            console.log('Starting to load user items...');
+            console.log('Loading user items...');
             
             try {
                 document.getElementById('loading-reported').style.display = 'block';
@@ -524,11 +720,9 @@
                 document.getElementById('error-reported').style.display = 'none';
 
                 const response = await makeAuthenticatedRequest('/api/items/user/my-items');
-                console.log('Response status:', response.status);
                 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('API response:', result);
                     
                     if (result.success && result.items) {
                         userItems = result.items;
@@ -536,30 +730,25 @@
                         displayReportedItems();
                         updateStats();
                     } else {
-                        console.error('API returned error:', result.error);
                         showErrorState('reported', result.error || 'Failed to load items');
                     }
                 } else {
-                    console.error('HTTP error:', response.status, response.statusText);
-                    const errorText = await response.text();
-                    console.error('Error response:', errorText);
                     showErrorState('reported', `HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Network error loading items:', error);
+                console.error('Error loading items:', error);
                 showErrorState('reported', 'Network error: ' + error.message);
             }
         }
 
         // Load user's claims
         async function loadUserClaims() {
-            console.log('Starting to load user claims...');
+            console.log('Loading user claims...');
             
             try {
                 document.getElementById('loading-claims').style.display = 'block';
                 document.getElementById('claims-items').style.display = 'none';
                 document.getElementById('empty-claims').style.display = 'none';
-                document.getElementById('error-claims').style.display = 'none';
 
                 const response = await makeAuthenticatedRequest('/api/claims/my');
                 
@@ -572,7 +761,6 @@
                         showErrorState('claims', result.error || 'Failed to load claims');
                     }
                 } else if (response.status === 404) {
-                    console.log('Claims endpoint not found, showing empty state');
                     userClaims = [];
                     displayClaims();
                 } else {
@@ -585,23 +773,56 @@
             }
         }
 
+        // Load incoming claims for user's items
+        async function loadIncomingClaims() {
+            console.log('Loading incoming claims...');
+            
+            try {
+                document.getElementById('loading-incoming').style.display = 'block';
+                document.getElementById('incoming-claims').style.display = 'none';
+                document.getElementById('empty-incoming').style.display = 'none';
+
+                const response = await makeAuthenticatedRequest('/api/claims/for-my-items');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        incomingClaims = result.claims || [];
+                        displayIncomingClaims();
+                    } else {
+                        showErrorState('incoming', result.error || 'Failed to load incoming claims');
+                    }
+                } else if (response.status === 404) {
+                    incomingClaims = [];
+                    displayIncomingClaims();
+                } else {
+                    showErrorState('incoming', `HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error loading incoming claims:', error);
+                incomingClaims = [];
+                displayIncomingClaims();
+            }
+        }
+
         // Show error state
         function showErrorState(type, message) {
             document.getElementById(`loading-${type}`).style.display = 'none';
             document.getElementById(`${type}-items`).style.display = 'none';
             document.getElementById(`empty-${type}`).style.display = 'none';
-            document.getElementById(`error-${type}`).style.display = 'block';
             
-            const errorElement = document.querySelector(`#error-${type} p`);
-            if (errorElement && message) {
-                errorElement.textContent = message;
+            const errorElement = document.getElementById(`error-${type}`);
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                const errorP = errorElement.querySelector('p');
+                if (errorP && message) {
+                    errorP.textContent = message;
+                }
             }
         }
 
         // Display reported items
         function displayReportedItems() {
-            console.log('Displaying reported items:', userItems.length);
-            
             const container = document.getElementById('reported-items');
             const loading = document.getElementById('loading-reported');
             const empty = document.getElementById('empty-reported');
@@ -621,21 +842,18 @@
             container.innerHTML = '';
 
             userItems.forEach(item => {
-                console.log('Creating card for item:', item.title);
                 const itemCard = createItemCard(item);
                 container.appendChild(itemCard);
             });
         }
 
-        // Display claims
+        // Display user's claims
         function displayClaims() {
             const container = document.getElementById('claims-items');
             const loading = document.getElementById('loading-claims');
             const empty = document.getElementById('empty-claims');
-            const error = document.getElementById('error-claims');
 
             loading.style.display = 'none';
-            error.style.display = 'none';
 
             if (userClaims.length === 0) {
                 empty.style.display = 'block';
@@ -644,7 +862,7 @@
             }
 
             empty.style.display = 'none';
-            container.style.display = 'grid';
+            container.style.display = 'block';
             container.innerHTML = '';
 
             userClaims.forEach(claim => {
@@ -653,7 +871,31 @@
             });
         }
 
-        // Create item card (removed verification status)
+        // Display incoming claims
+        function displayIncomingClaims() {
+            const container = document.getElementById('incoming-claims');
+            const loading = document.getElementById('loading-incoming');
+            const empty = document.getElementById('empty-incoming');
+
+            loading.style.display = 'none';
+
+            if (incomingClaims.length === 0) {
+                empty.style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+
+            empty.style.display = 'none';
+            container.style.display = 'block';
+            container.innerHTML = '';
+
+            incomingClaims.forEach(claim => {
+                const claimCard = createIncomingClaimCard(claim);
+                container.appendChild(claimCard);
+            });
+        }
+
+        // Create item card with claim information
         function createItemCard(item) {
             const card = document.createElement('div');
             card.className = 'item-card';
@@ -673,13 +915,48 @@
             const category = item.category_name || item.category || 'Uncategorized';
             const status = item.status || 'unknown';
             const itemType = item.type || 'unknown';
+            
+            // Get claims information
+            const totalClaims = item.total_claims || 0;
+            const pendingClaims = item.pending_claims || 0;
+            const hasApprovedClaims = item.has_approved_claims || status === 'claimed';
+
+            let claimsBadgeHTML = '';
+            if (totalClaims > 0) {
+                if (pendingClaims > 0) {
+                    claimsBadgeHTML = `
+                        <div class="claims-badge has-new">
+                            <i class="fas fa-exclamation-circle"></i>
+                            ${pendingClaims} new claim(s)
+                        </div>
+                    `;
+                } else if (hasApprovedClaims) {
+                    claimsBadgeHTML = `
+                        <div class="claims-badge">
+                            <i class="fas fa-check-circle"></i>
+                            Claim approved
+                        </div>
+                    `;
+                } else {
+                    claimsBadgeHTML = `
+                        <div class="claims-badge">
+                            <i class="fas fa-clock"></i>
+                            ${totalClaims} claim(s)
+                        </div>
+                    `;
+                }
+            }
 
             card.innerHTML = `
                 <div class="item-header">
                     <span class="item-type ${itemType}">${itemType.toUpperCase()}</span>
-                    <button class="delete-btn" onclick="showDeleteModal(${item.item_id})" title="Delete item">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="status-badges">
+                        ${claimsBadgeHTML}
+                        <span class="status-badge ${status}">${status.toUpperCase()}</span>
+                        <button class="delete-btn" onclick="showDeleteModal(${item.item_id})" title="Delete item">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
                 <h3 class="item-title">${title}</h3>
                 <p class="item-description">${description}</p>
@@ -697,10 +974,27 @@
                         <span>${category}</span>
                     </div>
                     <div class="item-detail">
-                        <i class="fas fa-info-circle"></i>
-                        <span style="text-transform: capitalize; color: var(--success-color);">${status}</span>
+                        <i class="fas fa-eye"></i>
+                        <span>${item.view_count || 0} views</span>
                     </div>
                 </div>
+                
+                ${totalClaims > 0 ? `
+                    <div class="claims-section">
+                        <div class="claims-header">
+                            <div class="claims-icon">
+                                <i class="fas fa-hand-holding"></i>
+                            </div>
+                            <div>
+                                <strong>${totalClaims} Claim(s) Received</strong>
+                                <div style="font-size: 0.9rem; color: var(--gray-medium);">
+                                    ${pendingClaims > 0 ? `${pendingClaims} pending review` : 'All claims processed'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+                
                 <div class="item-actions">
                     <a href="/item-details.html?id=${item.item_id}" class="btn btn-primary">
                         <i class="fas fa-eye"></i> View Details
@@ -708,44 +1002,205 @@
                     <a href="/item-details.html?id=${item.item_id}&edit=true" class="btn btn-secondary">
                         <i class="fas fa-edit"></i> Edit
                     </a>
+                    ${totalClaims > 0 ? `
+                        <button class="btn btn-warning" onclick="viewClaims(${item.item_id})">
+                            <i class="fas fa-inbox"></i> View Claims
+                        </button>
+                    ` : ''}
                 </div>
             `;
 
             return card;
         }
 
-        // Create claim card
+        // Create claim card for user's claims
         function createClaimCard(claim) {
             const card = document.createElement('div');
-            card.className = 'item-card';
+            card.className = 'claim-card';
 
             const formatDate = (dateString) => {
                 if (!dateString) return 'N/A';
                 return new Date(dateString).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
-                    day: 'numeric'
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
             };
 
+            // Calculate accuracy if verification answers exist
+            let accuracyInfo = '';
+            if (claim.verification_answers && Array.isArray(claim.verification_answers)) {
+                const correctCount = claim.verification_answers.filter(a => a.is_correct).length;
+                const totalCount = claim.verification_answers.length;
+                const percentage = Math.round((correctCount / totalCount) * 100);
+                
+                accuracyInfo = `
+                    <div class="claim-answers">
+                        <strong>Verification Accuracy: ${correctCount}/${totalCount} (${percentage}%)</strong>
+                        ${claim.verification_answers.map((answer, index) => `
+                            <div class="answer-item ${answer.is_correct ? 'answer-correct' : 'answer-incorrect'}">
+                                <i class="fas fa-${answer.is_correct ? 'check' : 'times'}"></i>
+                                Q${index + 1}: ${answer.question}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
-                <div class="item-header">
-                    <span class="item-type found">CLAIMED</span>
-                </div>
-                <h3 class="item-title">${claim.item_title || 'Item Claim'}</h3>
-                <p class="item-description">Claim submitted for verification</p>
-                <div class="item-details">
-                    <div class="item-detail">
-                        <i class="fas fa-calendar"></i>
-                        <span>Claimed: ${formatDate(claim.created_at)}</span>
+                <div class="claim-header">
+                    <div>
+                        <h4 style="margin: 0 0 0.5rem 0;">${claim.item_title}</h4>
+                        <p style="margin: 0; color: var(--gray-medium); font-size: 0.9rem;">
+                            Claimed on ${formatDate(claim.created_at)}
+                        </p>
                     </div>
-                    <div class="item-detail">
-                        <i class="fas fa-info-circle"></i>
-                        <span>${(claim.status || 'pending').toUpperCase()}</span>
-                    </div>
+                    <span class="claim-status ${claim.claim_status || 'pending'}">${(claim.claim_status || 'pending').replace('_', ' ')}</span>
                 </div>
-                <div class="item-actions">
+                
+                ${accuracyInfo}
+                
+                <div style="margin-top: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                        <i class="fas fa-user" style="color: var(--gray-medium);"></i>
+                        <span style="font-size: 0.9rem;">Item owner: ${claim.item_owner_name}</span>
+                    </div>
+                    
+                    ${claim.claim_status === 'approved' ? `
+                        <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-check-circle"></i> Claim Approved!
+                            </div>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                                Your claim was approved. The item owner has been notified with your contact information.
+                            </p>
+                            <button class="btn btn-success" onclick="getContactInfo(${claim.claim_id})" style="margin-top: 0.5rem;">
+                                <i class="fas fa-phone"></i> Get Contact Info
+                            </button>
+                        </div>
+                    ` : claim.claim_status === 'rejected' ? `
+                        <div style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <div style="color: var(--error-color); font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-times-circle"></i> Claim Rejected
+                            </div>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                                ${claim.admin_notes || 'Your claim was not approved by the item owner.'}
+                            </p>
+                        </div>
+                    ` : `
+                        <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <div style="color: var(--warning-color); font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-clock"></i> Under Review
+                            </div>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                                Your claim is being reviewed. You'll be notified once the item owner makes a decision.
+                            </p>
+                        </div>
+                    `}
+                </div>
+                
+                <div style="margin-top: 1rem;">
                     <a href="/item-details.html?id=${claim.item_id}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> View Item
+                    </a>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Create incoming claim card
+        function createIncomingClaimCard(claim) {
+            const card = document.createElement('div');
+            card.className = 'claim-card';
+
+            const formatDate = (dateString) => {
+                if (!dateString) return 'N/A';
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            };
+
+            // Calculate accuracy if verification answers exist
+            let accuracyInfo = '';
+            if (claim.verification_answers && Array.isArray(claim.verification_answers)) {
+                const correctCount = claim.verification_answers.filter(a => a.is_correct).length;
+                const totalCount = claim.verification_answers.length;
+                const percentage = Math.round((correctCount / totalCount) * 100);
+                
+                accuracyInfo = `
+                    <div class="claim-answers">
+                        <strong>Answer Accuracy: ${correctCount}/${totalCount} (${percentage}%)</strong>
+                        ${claim.verification_answers.map((answer, index) => `
+                            <div class="answer-item ${answer.is_correct ? 'answer-correct' : 'answer-incorrect'}">
+                                <i class="fas fa-${answer.is_correct ? 'check' : 'times'}"></i>
+                                <strong>Q:</strong> ${answer.question}<br>
+                                <strong>Their Answer:</strong> ${answer.user_answer}<br>
+                                <strong>Correct Answer:</strong> ${answer.correct_answer}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="claim-header">
+                    <div>
+                        <h4 style="margin: 0 0 0.5rem 0;">${claim.item_title}</h4>
+                        <p style="margin: 0; color: var(--gray-medium); font-size: 0.9rem;">
+                            Claimed by ${claim.claimant_name} on ${formatDate(claim.created_at)}
+                        </p>
+                    </div>
+                    <span class="claim-status ${claim.claim_status || 'pending'}">${(claim.claim_status || 'pending').replace('_', ' ')}</span>
+                </div>
+                
+                ${accuracyInfo}
+                
+                <div style="margin-top: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                        <i class="fas fa-envelope" style="color: var(--gray-medium);"></i>
+                        <span style="font-size: 0.9rem;">${claim.claimant_email}</span>
+                    </div>
+                    ${claim.claimant_phone ? `
+                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                            <i class="fas fa-phone" style="color: var(--gray-medium);"></i>
+                            <span style="font-size: 0.9rem;">${claim.claimant_phone}</span>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${claim.claim_status === 'pending_verification' || claim.claim_status === 'awaiting_proof' ? `
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button class="btn btn-success" onclick="approveClaim(${claim.claim_id})">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="btn" style="background: var(--error-color); color: white;" onclick="rejectClaim(${claim.claim_id})">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                ` : claim.claim_status === 'approved' ? `
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                        <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
+                            <i class="fas fa-check-circle"></i> Claim Approved
+                        </div>
+                        <button class="btn btn-primary" onclick="completeClaim(${claim.claim_id})">
+                            <i class="fas fa-handshake"></i> Mark as Returned
+                        </button>
+                    </div>
+                ` : `
+                    <div style="margin-top: 1rem; color: var(--gray-medium); font-style: italic;">
+                        <i class="fas fa-info-circle"></i> Claim has been processed
+                    </div>
+                `}
+                
+                <div style="margin-top: 1rem;">
+                    <a href="/item-details.html?id=${claim.item_id}" class="btn btn-secondary">
                         <i class="fas fa-eye"></i> View Item
                     </a>
                 </div>
@@ -765,15 +1220,46 @@
             document.getElementById('lostItems').textContent = lostItems;
             document.getElementById('foundItems').textContent = foundItems;
             document.getElementById('activeItems').textContent = activeItems;
+        }
 
-            console.log('Stats updated:', { totalItems, lostItems, foundItems, activeItems });
+        // Update tab notifications
+        function updateNotifications() {
+            // Count items with new claims
+            const itemsWithNewClaims = userItems.filter(item => 
+                (item.pending_claims || 0) > 0
+            ).length;
+            
+            const newUserClaims = userClaims.filter(claim => 
+                claim.claim_status === 'approved' && !claim.contact_revealed
+            ).length;
+            
+            const newIncomingClaims = incomingClaims.filter(claim => 
+                claim.claim_status === 'pending_verification' || claim.claim_status === 'awaiting_proof'
+            ).length;
+
+            // Update notification badges
+            updateNotificationBadge('reportsNotification', itemsWithNewClaims);
+            updateNotificationBadge('claimsNotification', newUserClaims);
+            updateNotificationBadge('incomingNotification', newIncomingClaims);
+        }
+
+        function updateNotificationBadge(elementId, count) {
+            const badge = document.getElementById(elementId);
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
         }
 
         // Switch tabs
         function switchTab(tab) {
+            // Update active tab
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
 
+            // Update active content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
@@ -783,7 +1269,101 @@
             console.log('Switched to tab:', tab);
         }
 
-        // Delete functionality
+        // Claim management functions
+        async function approveClaim(claimId) {
+            if (!confirm('Are you sure you want to approve this claim?')) return;
+
+            try {
+                const response = await makeAuthenticatedRequest(`/api/claims/${claimId}/approve`, {
+                    method: 'PUT'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Claim approved successfully!');
+                    await loadAllData();
+                } else {
+                    alert('Failed to approve claim: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Approve claim error:', error);
+                alert('Failed to approve claim. Please try again.');
+            }
+        }
+
+        async function rejectClaim(claimId) {
+            const reason = prompt('Please provide a reason for rejection (optional):');
+            if (reason === null) return; // User cancelled
+
+            try {
+                const response = await makeAuthenticatedRequest(`/api/claims/${claimId}/reject`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Claim rejected successfully!');
+                    await loadAllData();
+                } else {
+                    alert('Failed to reject claim: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Reject claim error:', error);
+                alert('Failed to reject claim. Please try again.');
+            }
+        }
+
+        async function completeClaim(claimId) {
+            if (!confirm('Mark this item as successfully returned?')) return;
+
+            try {
+                const response = await makeAuthenticatedRequest(`/api/claims/${claimId}/complete`, {
+                    method: 'PUT'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Item marked as returned successfully!');
+                    await loadAllData();
+                } else {
+                    alert('Failed to complete claim: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Complete claim error:', error);
+                alert('Failed to complete claim. Please try again.');
+            }
+        }
+
+        async function getContactInfo(claimId) {
+            try {
+                const response = await makeAuthenticatedRequest(`/api/claims/${claimId}/contact`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const contact = result.contact;
+                    alert(`Contact Information:\n\nName: ${contact.name}\nEmail: ${contact.email}\nPhone: ${contact.phone || 'Not provided'}\n\nPreferred contact: ${contact.preferred_contact}`);
+                } else {
+                    alert('Contact information not available: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Get contact info error:', error);
+                alert('Failed to get contact information. Please try again.');
+            }
+        }
+
+        function viewClaims(itemId) {
+            // Switch to incoming claims tab and highlight claims for this item
+            switchTab('incoming');
+            
+            // Scroll to claims for this item (you could enhance this further)
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Delete functionality (existing code)
         function showDeleteModal(itemId) {
             itemToDelete = itemId;
             document.getElementById('deleteModal').classList.add('show');
@@ -805,17 +1385,10 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Remove item from local array
                     userItems = userItems.filter(item => item.item_id !== itemToDelete);
-                    
-                    // Refresh display
                     displayReportedItems();
                     updateStats();
-                    
-                    // Close modal
                     closeDeleteModal();
-                    
-                    // Show success message
                     alert('Item deleted successfully!');
                 } else {
                     alert('Failed to delete item: ' + (result.error || 'Unknown error'));
@@ -842,7 +1415,6 @@
                 ...options.headers
             };
 
-            console.log('Making request to:', url);
             return fetch(url, {
                 ...options,
                 headers

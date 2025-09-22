@@ -680,8 +680,107 @@
         </div>
     </div>
 
+    <!-- Proof Upload Modal -->
+<div class="modal" id="proofModal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 2rem; border-radius: 15px 15px 0 0;">
+            <h3 style="margin: 0 0 0.5rem 0;">
+                <i class="fas fa-id-card"></i> Government Proof Required
+            </h3>
+            <p style="margin: 0; opacity: 0.9;">Upload your Aadhar card to verify your identity</p>
+        </div>
+        
+        <div style="padding: 2rem;">
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="color: var(--warning-color); font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-shield-alt"></i> Security Notice
+                </div>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                    Your Aadhar card will only be viewed by the item owner for identity verification. 
+                    Contact details will be shared only after successful verification.
+                </p>
+            </div>
+            
+            <form id="proofUploadForm" enctype="multipart/form-data">
+                <div style="border: 2px dashed var(--gray-border); border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer;" id="proofUploadArea">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--gray-medium); margin-bottom: 1rem;"></i>
+                    <p style="margin: 0 0 0.5rem 0; font-weight: 600;">Click to upload Aadhar card</p>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--gray-medium);">JPG, PNG, or PDF (max 10MB)</p>
+                </div>
+                <input type="file" id="aadharProof" name="aadharProof" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" required>
+                
+                <div id="proofPreview" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--gray-light); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-file-image" style="font-size: 2rem; color: var(--success-color);"></i>
+                        <div style="flex: 1;">
+                            <div id="proofFileName" style="font-weight: 600;"></div>
+                            <div id="proofFileSize" style="font-size: 0.85rem; color: var(--gray-medium);"></div>
+                        </div>
+                        <button type="button" onclick="removeProofFile()" style="background: var(--error-color); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" onclick="closeProofModal()" class="btn btn-secondary" style="flex: 1;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;" id="submitProofBtn">
+                        <i class="fas fa-upload"></i> Submit Proof
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Proof Review Modal (for item owners) -->
+<div class="modal" id="proofReviewModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div style="background: linear-gradient(135deg, var(--warning-color), #fcd34d); color: white; padding: 2rem; border-radius: 15px 15px 0 0;">
+            <h3 style="margin: 0 0 0.5rem 0;">
+                <i class="fas fa-eye"></i> Review Government Proof
+            </h3>
+            <p style="margin: 0; opacity: 0.9;">Verify the claimant's identity before sharing contact details</p>
+        </div>
+        
+        <div style="padding: 2rem;">
+            <div id="proofImageContainer" style="text-align: center; margin-bottom: 2rem;">
+                <!-- Proof image will be displayed here -->
+            </div>
+            
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-check-circle"></i> Verification Guidelines
+                </div>
+                <ul style="margin: 0; padding-left: 1rem; font-size: 0.9rem; color: var(--gray-medium);">
+                    <li>Verify the name matches the claimant's profile</li>
+                    <li>Check if the document appears genuine and unaltered</li>
+                    <li>Ensure the photo matches if visible</li>
+                    <li>Only approve if you're confident in the identity</li>
+                </ul>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="button" onclick="closeProofReviewModal()" class="btn btn-secondary" style="flex: 1;">
+                    Close
+                </button>
+                <button type="button" onclick="rejectProof()" class="btn" style="flex: 1; background: var(--error-color); color: white;">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button type="button" onclick="approveProof()" class="btn btn-success" style="flex: 1;">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
         let currentTab = 'reported';
+        let currentProofClaimId = null;
+let currentReviewClaimId = null;
         let userItems = [];
         let userClaims = [];
         let incomingClaims = [];
@@ -740,6 +839,175 @@
                 showErrorState('reported', 'Network error: ' + error.message);
             }
         }
+
+        // Add these functions to the script section in my-items.html
+
+// Proof upload functions
+function showProofUpload(claimId) {
+    currentProofClaimId = claimId;
+    document.getElementById('proofModal').classList.add('show');
+    setupProofUpload();
+}
+
+function closeProofModal() {
+    currentProofClaimId = null;
+    document.getElementById('proofModal').classList.remove('show');
+    document.getElementById('proofUploadForm').reset();
+    document.getElementById('proofPreview').style.display = 'none';
+}
+
+function setupProofUpload() {
+    const uploadArea = document.getElementById('proofUploadArea');
+    const fileInput = document.getElementById('aadharProof');
+    const preview = document.getElementById('proofPreview');
+    
+    uploadArea.onclick = () => fileInput.click();
+    
+    fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+            
+            document.getElementById('proofFileName').textContent = file.name;
+            document.getElementById('proofFileSize').textContent = formatFileSize(file.size);
+            preview.style.display = 'block';
+        }
+    };
+}
+
+function removeProofFile() {
+    document.getElementById('aadharProof').value = '';
+    document.getElementById('proofPreview').style.display = 'none';
+}
+
+// Handle proof upload form submission
+document.getElementById('proofUploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = document.getElementById('submitProofBtn');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    
+    try {
+        const response = await makeAuthenticatedRequest(`/api/claims/${currentProofClaimId}/proof`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            closeProofModal();
+            await loadAllData(); // Refresh data
+        } else {
+            alert('Upload failed: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Proof upload error:', error);
+        alert('Upload failed. Please try again.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-upload"></i> Submit Proof';
+    }
+});
+
+// Proof review functions (for item owners)
+function showProofReview(claimId, proofPath) {
+    currentReviewClaimId = claimId;
+    
+    const container = document.getElementById('proofImageContainer');
+    const fileExt = proofPath.split('.').pop().toLowerCase();
+    
+    if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
+        container.innerHTML = `
+            <img src="${proofPath}" style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: var(--shadow);" 
+                 alt="Government Proof" onclick="window.open('${proofPath}', '_blank')">
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-medium);">Click image to view full size</p>
+        `;
+    } else if (fileExt === 'pdf') {
+        container.innerHTML = `
+            <div style="padding: 2rem; border: 2px dashed var(--gray-border); border-radius: 10px;">
+                <i class="fas fa-file-pdf" style="font-size: 3rem; color: var(--error-color); margin-bottom: 1rem;"></i>
+                <p style="margin: 0;">PDF Document</p>
+                <a href="${proofPath}" target="_blank" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-external-link-alt"></i> Open PDF
+                </a>
+            </div>
+        `;
+    }
+    
+    document.getElementById('proofReviewModal').classList.add('show');
+}
+
+function closeProofReviewModal() {
+    currentReviewClaimId = null;
+    document.getElementById('proofReviewModal').classList.remove('show');
+}
+
+async function approveProof() {
+    if (!currentReviewClaimId) return;
+    
+    try {
+        const response = await makeAuthenticatedRequest(`/api/claims/${currentReviewClaimId}/verify-proof`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ verified: true })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            closeProofReviewModal();
+            await loadAllData();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Approve proof error:', error);
+        alert('Failed to approve proof. Please try again.');
+    }
+}
+
+async function rejectProof() {
+    if (!currentReviewClaimId) return;
+    
+    if (!confirm('Are you sure you want to reject this proof? This will close the claim.')) return;
+    
+    try {
+        const response = await makeAuthenticatedRequest(`/api/claims/${currentReviewClaimId}/verify-proof`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ verified: false })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            closeProofReviewModal();
+            await loadAllData();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Reject proof error:', error);
+        alert('Failed to reject proof. Please try again.');
+    }
+}
+
+// Add utility function
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
 
         // Load user's claims
         async function loadUserClaims() {
@@ -1013,201 +1281,287 @@
             return card;
         }
 
-        // Create claim card for user's claims
-        function createClaimCard(claim) {
-            const card = document.createElement('div');
-            card.className = 'claim-card';
+        // Update the createClaimCard function to handle new statuses
+function createClaimCard(claim) {
+    const card = document.createElement('div');
+    card.className = 'claim-card';
 
-            const formatDate = (dateString) => {
-                if (!dateString) return 'N/A';
-                return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            };
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
-            // Calculate accuracy if verification answers exist
-            let accuracyInfo = '';
-            if (claim.verification_answers && Array.isArray(claim.verification_answers)) {
-                const correctCount = claim.verification_answers.filter(a => a.is_correct).length;
-                const totalCount = claim.verification_answers.length;
-                const percentage = Math.round((correctCount / totalCount) * 100);
-                
-                accuracyInfo = `
-                    <div class="claim-answers">
-                        <strong>Verification Accuracy: ${correctCount}/${totalCount} (${percentage}%)</strong>
-                        ${claim.verification_answers.map((answer, index) => `
-                            <div class="answer-item ${answer.is_correct ? 'answer-correct' : 'answer-incorrect'}">
-                                <i class="fas fa-${answer.is_correct ? 'check' : 'times'}"></i>
-                                Q${index + 1}: ${answer.question}
-                            </div>
-                        `).join('')}
+    // Calculate accuracy if verification answers exist
+    let accuracyInfo = '';
+    if (claim.verification_answers && Array.isArray(claim.verification_answers)) {
+        const correctCount = claim.verification_answers.filter(a => a.is_correct).length;
+        const totalCount = claim.verification_answers.length;
+        const percentage = Math.round((correctCount / totalCount) * 100);
+        
+        accuracyInfo = `
+            <div class="claim-answers">
+                <strong>Verification Accuracy: ${correctCount}/${totalCount} (${percentage}%)</strong>
+                ${claim.verification_answers.map((answer, index) => `
+                    <div class="answer-item ${answer.is_correct ? 'answer-correct' : 'answer-incorrect'}">
+                        <i class="fas fa-${answer.is_correct ? 'check' : 'times'}"></i>
+                        Q${index + 1}: ${answer.question}
                     </div>
-                `;
-            }
+                `).join('')}
+            </div>
+        `;
+    }
 
-            card.innerHTML = `
-                <div class="claim-header">
-                    <div>
-                        <h4 style="margin: 0 0 0.5rem 0;">${claim.item_title}</h4>
-                        <p style="margin: 0; color: var(--gray-medium); font-size: 0.9rem;">
-                            Claimed on ${formatDate(claim.created_at)}
-                        </p>
+    // Status-specific content
+    let statusContent = '';
+    
+    switch (claim.claim_status) {
+        case 'awaiting_proof':
+            statusContent = `
+                <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="color: var(--warning-color); font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-id-card"></i> Government Proof Required
                     </div>
-                    <span class="claim-status ${claim.claim_status || 'pending'}">${(claim.claim_status || 'pending').replace('_', ' ')}</span>
-                </div>
-                
-                ${accuracyInfo}
-                
-                <div style="margin-top: 1rem;">
-                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
-                        <i class="fas fa-user" style="color: var(--gray-medium);"></i>
-                        <span style="font-size: 0.9rem;">Item owner: ${claim.item_owner_name}</span>
-                    </div>
-                    
-                    ${claim.claim_status === 'approved' ? `
-                        <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                            <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
-                                <i class="fas fa-check-circle"></i> Claim Approved!
-                            </div>
-                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
-                                Your claim was approved. The item owner has been notified with your contact information.
-                            </p>
-                            <button class="btn btn-success" onclick="getContactInfo(${claim.claim_id})" style="margin-top: 0.5rem;">
-                                <i class="fas fa-phone"></i> Get Contact Info
-                            </button>
-                        </div>
-                    ` : claim.claim_status === 'rejected' ? `
-                        <div style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                            <div style="color: var(--error-color); font-weight: 600; margin-bottom: 0.5rem;">
-                                <i class="fas fa-times-circle"></i> Claim Rejected
-                            </div>
-                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
-                                ${claim.admin_notes || 'Your claim was not approved by the item owner.'}
-                            </p>
-                        </div>
-                    ` : `
-                        <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                            <div style="color: var(--warning-color); font-weight: 600; margin-bottom: 0.5rem;">
-                                <i class="fas fa-clock"></i> Under Review
-                            </div>
-                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
-                                Your claim is being reviewed. You'll be notified once the item owner makes a decision.
-                            </p>
-                        </div>
-                    `}
-                </div>
-                
-                <div style="margin-top: 1rem;">
-                    <a href="/item-details.html?id=${claim.item_id}" class="btn btn-primary">
-                        <i class="fas fa-eye"></i> View Item
-                    </a>
+                    <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--gray-medium);">
+                        Submit your Aadhar card to verify your identity and complete the claim.
+                    </p>
+                    <button class="btn btn-warning" onclick="showProofUpload(${claim.claim_id})">
+                        <i class="fas fa-upload"></i> Upload Aadhar Card
+                    </button>
                 </div>
             `;
-
-            return card;
-        }
-
-        // Create incoming claim card
-        function createIncomingClaimCard(claim) {
-            const card = document.createElement('div');
-            card.className = 'claim-card';
-
-            const formatDate = (dateString) => {
-                if (!dateString) return 'N/A';
-                return new Date(dateString).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            };
-
-            // Calculate accuracy if verification answers exist
-            let accuracyInfo = '';
-            if (claim.verification_answers && Array.isArray(claim.verification_answers)) {
-                const correctCount = claim.verification_answers.filter(a => a.is_correct).length;
-                const totalCount = claim.verification_answers.length;
-                const percentage = Math.round((correctCount / totalCount) * 100);
-                
-                accuracyInfo = `
-                    <div class="claim-answers">
-                        <strong>Answer Accuracy: ${correctCount}/${totalCount} (${percentage}%)</strong>
-                        ${claim.verification_answers.map((answer, index) => `
-                            <div class="answer-item ${answer.is_correct ? 'answer-correct' : 'answer-incorrect'}">
-                                <i class="fas fa-${answer.is_correct ? 'check' : 'times'}"></i>
-                                <strong>Q:</strong> ${answer.question}<br>
-                                <strong>Their Answer:</strong> ${answer.user_answer}<br>
-                                <strong>Correct Answer:</strong> ${answer.correct_answer}
-                            </div>
-                        `).join('')}
+            break;
+            
+        case 'proof_submitted':
+            statusContent = `
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="color: var(--primary-color); font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-clock"></i> Proof Under Review
                     </div>
-                `;
-            }
-
-            card.innerHTML = `
-                <div class="claim-header">
-                    <div>
-                        <h4 style="margin: 0 0 0.5rem 0;">${claim.item_title}</h4>
-                        <p style="margin: 0; color: var(--gray-medium); font-size: 0.9rem;">
-                            Claimed by ${claim.claimant_name} on ${formatDate(claim.created_at)}
-                        </p>
-                    </div>
-                    <span class="claim-status ${claim.claim_status || 'pending'}">${(claim.claim_status || 'pending').replace('_', ' ')}</span>
-                </div>
-                
-                ${accuracyInfo}
-                
-                <div style="margin-top: 1rem;">
-                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
-                        <i class="fas fa-envelope" style="color: var(--gray-medium);"></i>
-                        <span style="font-size: 0.9rem;">${claim.claimant_email}</span>
-                    </div>
-                    ${claim.claimant_phone ? `
-                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
-                            <i class="fas fa-phone" style="color: var(--gray-medium);"></i>
-                            <span style="font-size: 0.9rem;">${claim.claimant_phone}</span>
-                        </div>
-                    ` : ''}
-                </div>
-                
-                ${claim.claim_status === 'pending_verification' || claim.claim_status === 'awaiting_proof' ? `
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <button class="btn btn-success" onclick="approveClaim(${claim.claim_id})">
-                            <i class="fas fa-check"></i> Approve
-                        </button>
-                        <button class="btn" style="background: var(--error-color); color: white;" onclick="rejectClaim(${claim.claim_id})">
-                            <i class="fas fa-times"></i> Reject
-                        </button>
-                    </div>
-                ` : claim.claim_status === 'approved' ? `
-                    <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                        <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
-                            <i class="fas fa-check-circle"></i> Claim Approved
-                        </div>
-                        <button class="btn btn-primary" onclick="completeClaim(${claim.claim_id})">
-                            <i class="fas fa-handshake"></i> Mark as Returned
-                        </button>
-                    </div>
-                ` : `
-                    <div style="margin-top: 1rem; color: var(--gray-medium); font-style: italic;">
-                        <i class="fas fa-info-circle"></i> Claim has been processed
-                    </div>
-                `}
-                
-                <div style="margin-top: 1rem;">
-                    <a href="/item-details.html?id=${claim.item_id}" class="btn btn-secondary">
-                        <i class="fas fa-eye"></i> View Item
-                    </a>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                        Your Aadhar card has been submitted. The item owner is reviewing it for verification.
+                    </p>
                 </div>
             `;
+            break;
+            
+        case 'approved':
+            statusContent = `
+                <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-check-circle"></i> Claim Approved!
+                    </div>
+                    <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--gray-medium);">
+                        Your proof was verified successfully. Contact details are now available.
+                    </p>
+                    <button class="btn btn-success" onclick="getContactInfo(${claim.claim_id})">
+                        <i class="fas fa-phone"></i> Get Contact Info
+                    </button>
+                </div>
+            `;
+            break;
+            
+        case 'rejected':
+            statusContent = `
+                <div style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="color: var(--error-color); font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-times-circle"></i> Claim Rejected
+                    </div>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                        ${claim.admin_notes || 'Your claim was not approved by the item owner.'}
+                    </p>
+                </div>
+            `;
+            break;
+            
+        default:
+            statusContent = `
+                <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="color: var(--warning-color); font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-clock"></i> Under Review
+                    </div>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                        Your claim is being reviewed. You'll be notified once the item owner makes a decision.
+                    </p>
+                </div>
+            `;
+    }
 
-            return card;
-        }
+    card.innerHTML = `
+        <div class="claim-header">
+            <div>
+                <h4 style="margin: 0 0 0.5rem 0;">${claim.item_title}</h4>
+                <p style="margin: 0; color: var(--gray-medium); font-size: 0.9rem;">
+                    Claimed on ${formatDate(claim.created_at)}
+                </p>
+            </div>
+            <span class="claim-status ${claim.claim_status || 'pending'}">${(claim.claim_status || 'pending').replace('_', ' ')}</span>
+        </div>
+        
+        ${accuracyInfo}
+        
+        <div style="margin-top: 1rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                <i class="fas fa-user" style="color: var(--gray-medium);"></i>
+                <span style="font-size: 0.9rem;">Item owner: ${claim.item_owner_name}</span>
+            </div>
+        </div>
+        
+        ${statusContent}
+        
+        <div style="margin-top: 1rem;">
+            <a href="/item-details.html?id=${claim.item_id}" class="btn btn-primary">
+                <i class="fas fa-eye"></i> View Item
+            </a>
+        </div>
+    `;
+
+    return card;
+}
+
+// Update the createIncomingClaimCard function
+function createIncomingClaimCard(claim) {
+    const card = document.createElement('div');
+    card.className = 'claim-card';
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    // Calculate accuracy if verification answers exist
+    let accuracyInfo = '';
+    if (claim.verification_answers && Array.isArray(claim.verification_answers)) {
+        const correctCount = claim.verification_answers.filter(a => a.is_correct).length;
+        const totalCount = claim.verification_answers.length;
+        const percentage = Math.round((correctCount / totalCount) * 100);
+        
+        accuracyInfo = `
+            <div class="claim-answers">
+                <strong>Answer Accuracy: ${correctCount}/${totalCount} (${percentage}%)</strong>
+                ${claim.verification_answers.map((answer, index) => `
+                    <div class="answer-item ${answer.is_correct ? 'answer-correct' : 'answer-incorrect'}">
+                        <i class="fas fa-${answer.is_correct ? 'check' : 'times'}"></i>
+                        <strong>Q:</strong> ${answer.question}<br>
+                        <strong>Their Answer:</strong> ${answer.user_answer}<br>
+                        <strong>Correct Answer:</strong> ${answer.correct_answer}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // Status-specific actions
+    let actionButtons = '';
+    
+    if (claim.claim_status === 'proof_submitted') {
+        actionButtons = `
+            <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <div style="color: var(--warning-color); font-weight: 600; margin-bottom: 1rem;">
+                    <i class="fas fa-id-card"></i> Government Proof Submitted
+                </div>
+                <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--gray-medium);">
+                    The claimant has submitted their Aadhar card. Please review and verify their identity.
+                </p>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="showProofReview(${claim.claim_id}, '${claim.aadhar_proof}')">
+                        <i class="fas fa-eye"></i> Review Proof
+                    </button>
+                </div>
+            </div>
+        `;
+    } else if (claim.claim_status === 'awaiting_proof') {
+        actionButtons = `
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <div style="color: var(--primary-color); font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-clock"></i> Waiting for Government Proof
+                </div>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--gray-medium);">
+                    The claimant needs to submit their Aadhar card for identity verification.
+                </p>
+            </div>
+        `;
+    } else if (claim.claim_status === 'approved') {
+        actionButtons = `
+            <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-check-circle"></i> Claim Approved
+                </div>
+                <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--gray-medium);">
+                    Identity verified. Contact details are now shared with both parties.
+                </p>
+                <button class="btn btn-primary" onclick="completeClaim(${claim.claim_id})">
+                    <i class="fas fa-handshake"></i> Mark as Returned
+                </button>
+            </div>
+        `;
+    } else if (claim.claim_status === 'pending_verification') {
+        actionButtons = `
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button class="btn btn-success" onclick="approveClaim(${claim.claim_id})">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn" style="background: var(--error-color); color: white;" onclick="rejectClaim(${claim.claim_id})">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            </div>
+        `;
+    } else {
+        actionButtons = `
+            <div style="margin-top: 1rem; color: var(--gray-medium); font-style: italic;">
+                <i class="fas fa-info-circle"></i> Claim has been processed
+            </div>
+        `;
+    }
+
+    card.innerHTML = `
+        <div class="claim-header">
+            <div>
+                <h4 style="margin: 0 0 0.5rem 0;">${claim.item_title}</h4>
+                <p style="margin: 0; color: var(--gray-medium); font-size: 0.9rem;">
+                    Claimed by ${claim.claimant_name} on ${formatDate(claim.created_at)}
+                </p>
+            </div>
+            <span class="claim-status ${claim.claim_status || 'pending'}">${(claim.claim_status || 'pending').replace('_', ' ')}</span>
+        </div>
+        
+        ${accuracyInfo}
+        
+        <div style="margin-top: 1rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                <i class="fas fa-envelope" style="color: var(--gray-medium);"></i>
+                <span style="font-size: 0.9rem;">${claim.claimant_email}</span>
+            </div>
+            ${claim.claimant_phone ? `
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                    <i class="fas fa-phone" style="color: var(--gray-medium);"></i>
+                    <span style="font-size: 0.9rem;">${claim.claimant_phone}</span>
+                </div>
+            ` : ''}
+        </div>
+        
+        ${actionButtons}
+        
+        <div style="margin-top: 1rem;">
+            <a href="/item-details.html?id=${claim.item_id}" class="btn btn-secondary">
+                <i class="fas fa-eye"></i> View Item
+            </a>
+        </div>
+    `;
+
+    return card;
+}
 
         // Update statistics
         function updateStats() {

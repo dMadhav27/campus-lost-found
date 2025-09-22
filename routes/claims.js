@@ -1,8 +1,46 @@
 const express = require('express');
 const { pool } = require('../config/database');
 const { authenticateToken, validateInput } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
+
+// Configure multer for proof document uploads
+const documentsDir = path.join(__dirname, '..', 'public', 'documents');
+if (!fs.existsSync(documentsDir)) {
+    fs.mkdirSync(documentsDir, { recursive: true });
+}
+
+const proofStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, documentsDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, `aadhar-proof-${uniqueSuffix}${ext}`);
+    }
+});
+
+const upload = multer({
+    storage: proofStorage,
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|pdf/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/pdf';
+        
+        if (mimetype && extname) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only JPG, PNG, or PDF files are allowed for government proof'), false);
+        }
+    }
+});
 
 // Helper function to safely parse JSON
 function safeJsonParse(jsonString, defaultValue = null) {
@@ -19,8 +57,10 @@ function safeJsonParse(jsonString, defaultValue = null) {
     }
 }
 
+// Replace the existing POST /api/claims route with this updated version:
+
 // @route   POST /api/claims
-// @desc    Submit a claim for an item with immediate approval logic
+// @desc    Submit a claim for an item with government proof requirement
 // @access  Private
 router.post('/', authenticateToken, async (req, res) => {
     try {
@@ -33,7 +73,7 @@ router.post('/', authenticateToken, async (req, res) => {
             });
         }
 
-        // Get the item details - Remove verification requirement
+        // Get the item details
         const [items] = await pool.execute(`
             SELECT i.*, u.user_id as item_owner_id, u.first_name, u.last_name, u.email
             FROM items i
@@ -97,17 +137,14 @@ router.post('/', authenticateToken, async (req, res) => {
             const correctAnswer = q.answer.toLowerCase().trim();
             const userAnswer = (verificationAnswers[index] || '').toLowerCase().trim();
             
-            // Improved matching: exact match or high similarity
             let isCorrect = false;
             
             if (correctAnswer === userAnswer) {
                 isCorrect = true;
             } else {
-                // Check for partial matches for certain types of answers
                 if (correctAnswer.length > 3 && userAnswer.length > 3) {
-                    // If answers are similar enough (simple similarity check)
                     const similarity = calculateSimilarity(correctAnswer, userAnswer);
-                    if (similarity > 0.8) { // 80% similarity threshold
+                    if (similarity > 0.8) {
                         isCorrect = true;
                     }
                 }
@@ -130,64 +167,38 @@ router.post('/', authenticateToken, async (req, res) => {
         const requiredCorrect = Math.max(2, Math.ceil(verificationQuestions.length * 0.8)); // 80% or minimum 2
         let claimStatus = 'pending_verification';
         
-        // If most answers are correct, approve immediately
+        // If most answers are correct, require government proof
         if (correctAnswers >= requiredCorrect) {
-            claimStatus = 'approved';
+            claimStatus = 'awaiting_proof'; // Changed from 'approved' to require proof
         } else if (correctAnswers >= Math.ceil(verificationQuestions.length * 0.6)) {
-            // If 60%+ correct, mark for manual review
             claimStatus = 'awaiting_proof';
         }
 
-        // Create the claim
+        // Create the claim (no longer auto-approved)
         const [claimResult] = await pool.execute(`
             INSERT INTO claims (
                 item_id, claimant_id, item_owner_id, claim_status, 
-                verification_answers, created_at,
-                ${claimStatus === 'approved' ? 'approved_at,' : ''}
-                contact_revealed
-            ) VALUES (?, ?, ?, ?, ?, NOW(), ${claimStatus === 'approved' ? 'NOW(),' : ''} ?)
+                verification_answers, created_at, contact_revealed
+            ) VALUES (?, ?, ?, ?, ?, NOW(), ?)
         `, [
             itemId,
             req.user.user_id,
             item.item_owner_id,
             claimStatus,
             JSON.stringify(answerComparisons),
-            claimStatus === 'approved' ? true : false
+            false // Never reveal contact initially
         ]);
-
-        // If approved immediately, update item status
-        if (claimStatus === 'approved') {
-            await pool.execute(
-                'UPDATE items SET status = ? WHERE item_id = ?',
-                ['claimed', itemId]
-            );
-            
-            // Create notification for item owner (optional - if you have notifications)
-            try {
-                await pool.execute(`
-                    INSERT INTO notifications (user_id, type, title, message, item_id, claim_id, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())
-                `, [
-                    item.item_owner_id,
-                    'claim_approved',
-                    'Item Claim Approved',
-                    `Someone has successfully claimed your ${item.type} item "${item.title}". You can now arrange the pickup.`,
-                    itemId,
-                    claimResult.insertId
-                ]);
-            } catch (notifError) {
-                console.log('Notification creation failed (table may not exist):', notifError.message);
-            }
-        }
 
         console.log(`✅ Claim submitted: User ${req.user.user_id} claimed item ${itemId} (${claimStatus}) - ${correctAnswers}/${verificationQuestions.length} correct`);
 
         // Prepare response message
         let message = '';
-        if (claimStatus === 'approved') {
-            message = 'Perfect match! Your claim has been automatically approved. The item owner will be notified with your contact information.';
-        } else if (claimStatus === 'awaiting_proof') {
-            message = 'Good match! Your claim requires additional verification. Please provide proof of ownership.';
+        if (claimStatus === 'awaiting_proof') {
+            if (correctAnswers >= requiredCorrect) {
+                message = 'Great match! Please submit your Aadhar card as government proof to complete the claim verification.';
+            } else {
+                message = 'Good partial match! Please submit your Aadhar card as government proof for additional verification.';
+            }
         } else {
             message = 'Claim submitted for review. Some answers need verification by the item owner.';
         }
@@ -201,7 +212,8 @@ router.post('/', authenticateToken, async (req, res) => {
                 correct_answers: correctAnswers,
                 total_questions: verificationQuestions.length,
                 item_title: item.title,
-                accuracy_percentage: Math.round((correctAnswers / verificationQuestions.length) * 100)
+                accuracy_percentage: Math.round((correctAnswers / verificationQuestions.length) * 100),
+                requires_proof: claimStatus === 'awaiting_proof'
             }
         });
 
@@ -210,6 +222,136 @@ router.post('/', authenticateToken, async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Failed to submit claim. Please try again.'
+        });
+    }
+});
+
+// @route   POST /api/claims/:id/proof
+// @desc    Submit government proof document for claim
+// @access  Private
+router.post('/:id/proof', authenticateToken, upload.single('aadharProof'), async (req, res) => {
+    try {
+        const claimId = req.params.id;
+        
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                error: 'Aadhar card image is required'
+            });
+        }
+
+        // Check if user owns this claim
+        const [claims] = await pool.execute(`
+            SELECT c.*, i.title as item_title
+            FROM claims c
+            JOIN items i ON c.item_id = i.item_id
+            WHERE c.claim_id = ? AND c.claimant_id = ?
+        `, [claimId, req.user.user_id]);
+
+        if (claims.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Claim not found or access denied'
+            });
+        }
+
+        const claim = claims[0];
+
+        // Check if claim is in correct status
+        if (!['awaiting_proof', 'proof_submitted'].includes(claim.claim_status)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Proof can only be submitted for claims awaiting proof'
+            });
+        }
+
+        // Store proof file path
+        const proofPath = `/documents/${req.file.filename}`;
+
+        // Update claim with proof
+        await pool.execute(`
+            UPDATE claims 
+            SET aadhar_proof = ?, claim_status = 'proof_submitted', proof_submitted_at = NOW()
+            WHERE claim_id = ?
+        `, [proofPath, claimId]);
+
+        console.log(`✅ Proof submitted for claim ${claimId}`);
+
+        res.json({
+            success: true,
+            message: 'Government proof submitted successfully. The item owner will review it before sharing contact details.'
+        });
+
+    } catch (error) {
+        console.error('Submit proof error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to submit proof'
+        });
+    }
+});
+
+// @route   PUT /api/claims/:id/verify-proof
+// @desc    Verify proof document (for item owners)
+// @access  Private
+router.put('/:id/verify-proof', authenticateToken, async (req, res) => {
+    try {
+        const claimId = req.params.id;
+        const { verified } = req.body;
+
+        // Check if user owns the item
+        const [claims] = await pool.execute(`
+            SELECT c.*, i.title as item_title
+            FROM claims c
+            JOIN items i ON c.item_id = i.item_id
+            WHERE c.claim_id = ? AND c.item_owner_id = ?
+        `, [claimId, req.user.user_id]);
+
+        if (claims.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Claim not found or access denied'
+            });
+        }
+
+        if (verified) {
+            // Approve claim and mark proof as verified
+            await pool.execute(`
+                UPDATE claims 
+                SET claim_status = 'approved', proof_verified = TRUE, 
+                    approved_at = NOW(), contact_revealed = TRUE
+                WHERE claim_id = ?
+            `, [claimId]);
+
+            // Update item status
+            await pool.execute(
+                'UPDATE items SET status = ? WHERE item_id = ?',
+                ['claimed', claims[0].item_id]
+            );
+
+            res.json({
+                success: true,
+                message: 'Proof verified and claim approved! Contact details are now available to both parties.'
+            });
+        } else {
+            // Reject the proof
+            await pool.execute(`
+                UPDATE claims 
+                SET claim_status = 'rejected', proof_verified = FALSE
+                WHERE claim_id = ?
+            `, [claimId]);
+
+            res.json({
+                success: true,
+                message: 'Proof verification failed. Claim has been rejected.'
+            });
+        }
+
+    } catch (error) {
+        console.error('Verify proof error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to verify proof'
         });
     }
 });

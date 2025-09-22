@@ -897,6 +897,8 @@ document.getElementById('proofUploadForm').addEventListener('submit', async func
         const response = await makeAuthenticatedRequest(`/api/claims/${currentProofClaimId}/proof`, {
             method: 'POST',
             body: formData
+            // IMPORTANT: Don't set headers here - let makeAuthenticatedRequest handle it
+            // and don't set Content-Type for FormData (browser will set it automatically)
         });
         
         const result = await response.json();
@@ -928,7 +930,7 @@ function showProofReview(claimId, proofPath) {
         container.innerHTML = `
             <img src="${proofPath}" style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: var(--shadow);" 
                  alt="Government Proof" onclick="window.open('${proofPath}', '_blank')">
-            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-medium);">Click image to view full size</p>
+            
         `;
     } else if (fileExt === 'pdf') {
         container.innerHTML = `
@@ -1499,7 +1501,7 @@ function createIncomingClaimCard(claim) {
                     <i class="fas fa-check-circle"></i> Claim Approved
                 </div>
                 <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: var(--gray-medium);">
-                    Identity verified. Contact details are now shared with both parties.
+                    IDENTITY REVEALED. CONTACT DETAILS ARE NOW VISIBLE FOR BOTH PARTIES! KINDLY CONTACT THE PERSON WHO FOUND YOUR ITEM TO GET IT BACK.
                 </p>
                 <button class="btn btn-primary" onclick="completeClaim(${claim.claim_id})">
                     <i class="fas fa-handshake"></i> Mark as Returned
@@ -1765,9 +1767,13 @@ function createIncomingClaimCard(claim) {
 
             const headers = {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
                 ...options.headers
             };
+
+            // CRITICAL FIX: Don't set Content-Type for FormData requests
+            if (!(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+            }
 
             return fetch(url, {
                 ...options,

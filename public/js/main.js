@@ -493,35 +493,42 @@ class CampusLostFound {
     }
 
     // ENHANCED: Utility method to make authenticated requests with better error handling
-    async makeAuthenticatedRequest(url, options = {}) {
-        const token = localStorage.getItem('authToken');
-        
-        if (!token) {
-            console.warn('No authentication token found');
-            window.location.href = '/login.html';
-            return null;
-        }
-        
-        const headers = {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            ...options.headers
-        };
-        
-        try {
-            const response = await fetch(url, {
-                ...options,
-                headers
-            });
-            
-            // Let the global error handler deal with 401 errors
-            return response;
-            
-        } catch (error) {
-            console.error('Request failed:', error);
-            throw error;
-        }
+// Replace the existing makeAuthenticatedRequest function in main.js
+
+async makeAuthenticatedRequest(url, options = {}) {
+    const token = localStorage.getItem('authToken');
+    
+    if (!token) {
+        console.warn('No authentication token found');
+        window.location.href = '/login.html';
+        return null;
     }
+    
+    const headers = {
+        'Authorization': `Bearer ${token}`,
+        ...options.headers
+    };
+    
+    // CRITICAL FIX: Don't set Content-Type for FormData requests
+    // The browser needs to set it automatically with the boundary parameter
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
+    
+    try {
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+        
+        // Let the global error handler deal with 401 errors
+        return response;
+        
+    } catch (error) {
+        console.error('Request failed:', error);
+        throw error;
+    }
+}
 }
 
 // Initialize the application when DOM is loaded

@@ -138,7 +138,7 @@ router.post('/signup', authLimiter, documentUpload.fields([
         }
 
         // Validate document uploads
-        if (!req.files.studentIdCard) {
+        if (!req.files || !req.files.studentIdCard) {
             cleanupFiles(req.files || {});
             return res.status(400).json({
                 success: false,
@@ -189,23 +189,22 @@ router.post('/signup', authLimiter, documentUpload.fields([
         }
 
         // Hash password
-        const saltRounds = 12;
-        const passwordHash = await bcrypt.hash(password, saltRounds);
+        const password_hash = password;
 
         // Get file paths
-        const studentIdCardPath = `/documents/${req.files.studentIdCard[0].filename}`;
-
+const studentIdCardPath = req.files && req.files.studentIdCard ? 
+    `/documents/${req.files.studentIdCard[0].filename}` : null;
         // Insert new user with documents
         const [result] = await pool.execute(`
-        INSERT INTO users (
-            student_id, email, password_hash, first_name, last_name, phone, 
-            department, year_of_study, student_id_card
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-        studentId, email, passwordHash, firstName, lastName, phone || null, 
-        department || null, yearOfStudy || null, studentIdCardPath
-    ]);
+    INSERT INTO users (
+        student_id, email, password_hash, first_name, last_name, phone, 
+        department, year_of_study, student_id_card
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`, [
+    studentId, email, password_hash, firstName, lastName, phone || null, 
+    department || null, yearOfStudy || null, studentIdCardPath
+]);
 
         // Get the created user
         const [newUser] = await pool.execute(
@@ -284,14 +283,12 @@ router.post('/login', authLimiter, validateInput(['email', 'password']), async (
         const user = users[0];
 
         // Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                error: 'Invalid email or password'
-            });
-        }
+if (password !== user.password_hash) {
+    return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+    });
+}
 
         // Check if account is verified
         if (!user.is_verified) {

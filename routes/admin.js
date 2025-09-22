@@ -118,24 +118,24 @@ router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
 
         if (whereClause) {
             usersQuery = `
-                SELECT 
-                    user_id, student_id, email, first_name, last_name, phone, 
-                    department, year_of_study, role, is_verified, created_at
-                FROM users 
-                ${whereClause}
-                ORDER BY created_at DESC 
-                LIMIT ${limitNum} OFFSET ${offsetNum}
-            `;
+    SELECT 
+        user_id, student_id, email, password_hash, first_name, last_name, phone, 
+        department, year_of_study, role, student_id_card, created_at
+    FROM users 
+    ${whereClause}
+    ORDER BY created_at DESC 
+    LIMIT ${limitNum} OFFSET ${offsetNum}
+`;
             finalParams = queryParams;
         } else {
             usersQuery = `
-                SELECT 
-                    user_id, student_id, email, first_name, last_name, phone, 
-                    department, year_of_study, role, is_verified, created_at
-                FROM users 
-                ORDER BY created_at DESC 
-                LIMIT ${limitNum} OFFSET ${offsetNum}
-            `;
+    SELECT 
+        user_id, student_id, email, password_hash, first_name, last_name, phone, 
+        department, year_of_study, role, student_id_card, created_at
+    FROM users 
+    ORDER BY created_at DESC 
+    LIMIT ${limitNum} OFFSET ${offsetNum}
+`;
             finalParams = [];
         }
         

@@ -561,50 +561,65 @@
             }
 
             const tableHTML = `
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Student ID</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Items</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${users.map(user => `
-                            <tr>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                        <div class="user-avatar">${user.first_name[0]}${user.last_name[0]}</div>
-                                        <div>
-                                            <div style="font-weight: 600;">${user.first_name} ${user.last_name}</div>
-                                            <div style="font-size: 0.85rem; color: var(--gray-medium);">${user.department || 'N/A'}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>${user.student_id}</td>
-                                <td>${user.email}</td>
-                                <td><span class="badge badge-${user.role}">${user.role}</span></td>
-                                <td><span class="badge badge-${user.is_verified ? 'verified' : 'unverified'}">${user.is_verified ? 'Verified' : 'Unverified'}</span></td>
-                                <td>${user.total_items || 0}</td>
-                                <td>
-                                    ${user.role !== 'admin' ? `
-                                        <button class="action-btn action-btn-${user.is_verified ? 'unverify' : 'verify'}" onclick="toggleUserVerification(${user.user_id}, ${!user.is_verified})">
-                                            ${user.is_verified ? 'Unverify' : 'Verify'}
-                                        </button>
-                                        <button class="action-btn action-btn-delete" onclick="deleteUser(${user.user_id}, '${user.first_name} ${user.last_name}')">
-                                            Delete
-                                        </button>
-                                    ` : '<span style="color: var(--gray-medium);">Protected</span>'}
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Student ID</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Phone</th>
+                <th>Department</th>
+                <th>Year</th>
+                <th>Role</th>
+                <th>Student ID Card</th>
+                <th>Items</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${users.map(user => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="user-avatar">${user.first_name[0]}${user.last_name[0]}</div>
+                            <div>
+                                <div style="font-weight: 600;">${user.first_name} ${user.last_name}</div>
+                                <div style="font-size: 0.85rem; color: var(--gray-medium);">Registered: ${new Date(user.created_at).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.student_id}</td>
+                    <td style="word-break: break-all; max-width: 150px;">${user.email}</td>
+                    <td>
+                        <button onclick="showPassword('${user.password_hash}')" style="background: var(--primary-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            View
+                        </button>
+                    </td>
+                    <td>${user.phone || 'Not provided'}</td>
+                    <td>${user.department || 'Not specified'}</td>
+                    <td>${user.year_of_study || 'Not specified'}</td>
+                    <td><span class="badge badge-${user.role}">${user.role}</span></td>
+                    <td>
+                        ${user.student_id_card ? `
+                            <button onclick="viewDocument('${user.student_id_card}')" style="background: var(--success-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                                View ID
+                            </button>
+                        ` : 'Not uploaded'}
+                    </td>
+                    <td>${user.total_items || 0}</td>
+                    <td>
+                        ${user.role !== 'admin' ? `
+                            <button class="action-btn action-btn-delete" onclick="deleteUser(${user.user_id}, '${user.first_name} ${user.last_name}')">
+                                Delete
+                            </button>
+                        ` : '<span style="color: var(--gray-medium);">---</span>'}
+                    </td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+`;
             
             table.innerHTML = tableHTML;
         }
@@ -890,6 +905,20 @@
                 timeout = setTimeout(later, wait);
             };
         }
+
+// Show password directly
+function showPassword(password) {
+    alert('Password: ' + password);
+}
+
+// View document (student ID card)
+function viewDocument(documentPath) {
+    if (documentPath) {
+        window.open(documentPath, '_blank');
+    } else {
+        alert('No document available');
+    }
+}
     </script>
 </body>
 </html>
